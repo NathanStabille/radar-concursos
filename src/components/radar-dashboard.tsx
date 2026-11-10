@@ -105,7 +105,11 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   );
 
   function setFilter(key: keyof typeof initialFilters, value: string) {
-    setFilters((current) => ({ ...current, [key]: value }));
+    setFilters((current) =>
+      key === "professionalArea"
+        ? { ...current, professionalArea: value, specialty: "" }
+        : { ...current, [key]: value },
+    );
   }
 
   function navigate(next: Tab) {

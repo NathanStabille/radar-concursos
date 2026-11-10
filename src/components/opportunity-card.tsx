@@ -44,7 +44,9 @@ export function OpportunityCard({
           <span>
             <MapPin size={14} /> {item.city || "Município não confirmado"}
           </span>
-          <span className="area">{item.area}</span>
+          <span className="area">
+            {item.professionalArea} · {item.specialty}
+          </span>
         </div>
       </div>
       <div className="record-pay">

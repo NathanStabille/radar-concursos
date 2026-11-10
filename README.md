@@ -1,6 +1,6 @@
 # Radar Concursos
 
-Painel em português de concursos públicos e seleções de TI no estado do Rio de Janeiro compatíveis com tecnólogo em Análise e Desenvolvimento de Sistemas (ADS).
+Painel em português de concursos públicos e seleções de diferentes áreas profissionais no estado do Rio de Janeiro.
 
 ## Rodar no VS Code
 
@@ -23,7 +23,7 @@ Abra [http://localhost:3000](http://localhost:3000). Use `npm run typecheck` par
 
 ## Atualizar o catálogo
 
-Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Mantenha o `id` dos cargos existentes para preservar os favoritos e use datas no formato `AAAA-MM-DD`. Atualize `reviewDate` com a data da conferência e registre retificações em `changes`.
+Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Mantenha o `id` dos cargos existentes para preservar os favoritos e use datas no formato `AAAA-MM-DD`. Use `professionalArea` para a categoria ampla (como Saúde) e `specialty` para a especialidade (como Fonoaudiologia). Registre formação e habilitação em `requirement`. Atualize `reviewDate` com a data da conferência e registre retificações em `changes`.
 
 A situação das inscrições usa o horário de São Paulo. A curadoria é manual. Favoritos ficam no navegador. O projeto dispensa API, banco de dados, login e variáveis de ambiente.
 

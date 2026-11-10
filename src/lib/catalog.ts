@@ -15,7 +15,8 @@ export const statusNames = {
 export const initialFilters = {
   search: "",
   city: "",
-  area: "",
+  professionalArea: "",
+  specialty: "",
   salary: "",
   status: "",
 };
@@ -62,14 +63,17 @@ function normalize(value: string) {
     .toLowerCase();
 }
 
-export function options(key: "city" | "area") {
-  return [
-    ...new Set(
-      opportunities.flatMap((item) =>
-        key === "city" ? item.cities : [item.area],
-      ),
-    ),
-  ].sort((a, b) => a.localeCompare(b, "pt-BR"));
+export function options(
+  key: "city" | "professionalArea" | "specialty",
+  professionalArea = "",
+) {
+  const matching = professionalArea
+    ? opportunities.filter((item) => item.professionalArea === professionalArea)
+    : opportunities;
+  const values = matching.flatMap((item) =>
+    key === "city" ? item.cities : [item[key]],
+  );
+  return [...new Set(values)].sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
 export const changes = opportunities
@@ -97,7 +101,8 @@ export function filterOpportunities(
             item.role,
             item.city,
             ...item.cities,
-            item.area,
+            item.professionalArea,
+            item.specialty,
             item.board,
             item.requirement,
           ].join(" "),
@@ -105,7 +110,13 @@ export function filterOpportunities(
       )
         return false;
       if (filters.city && !item.cities.includes(filters.city)) return false;
-      if (filters.area && filters.area !== item.area) return false;
+      if (
+        filters.professionalArea &&
+        filters.professionalArea !== item.professionalArea
+      )
+        return false;
+      if (filters.specialty && filters.specialty !== item.specialty)
+        return false;
       if (filters.status && filters.status !== status(item, today))
         return false;
       if (filters.salary === "unknown") return item.salary === null;

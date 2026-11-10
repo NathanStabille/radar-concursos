@@ -67,13 +67,13 @@ export function RadarHero() {
           <span className="signal"></span> RADAR DE EDITAIS / RJ
         </div>
         <h1>
-          Concursos de TI
+          Concursos públicos
           <br />
-          compatíveis com ADS<span>.</span>
+          para várias profissões<span>.</span>
         </h1>
         <p>
-          Acompanhe concursos públicos e seleções no Rio de Janeiro que aceitam
-          a formação de tecnólogo em ADS.
+          Encontre concursos e seleções no Rio de Janeiro por área profissional
+          e confira a formação exigida em cada edital.
         </p>
       </div>
       <div className="hero-note">

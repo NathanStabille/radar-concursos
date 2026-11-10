@@ -15,7 +15,8 @@ export type Opportunity = {
   org: string;
   role: string;
   kind: "Concurso público" | "Seleção simplificada";
-  area: string;
+  professionalArea: string;
+  specialty: string;
   city: string;
   cities: string[];
   salary: number | null;
@@ -37,6 +38,7 @@ const capital = "Rio de Janeiro";
 const capitalLocation = { city: capital, cities: [capital] };
 const publicExam = "Concurso público" as const;
 const inProgress = "ongoing" as const;
+const technology = "Tecnologia da Informação";
 const explicit = "ADS citado no edital";
 const technologist = "Tecnólogo em TI aceito";
 const technologyDegree =
@@ -87,15 +89,20 @@ const cremerjBase = {
   salary: 7765.48,
   salaryLabel: "Salário inicial · 40 h/semana",
   board: "Instituto Consulplan",
-  requirement:
-    "Diploma de bacharelado ou curso superior de tecnologia na área de TI, reconhecido pelo MEC, conforme a Retificação II do Edital nº 1/2026.",
-  eligibility: technologist,
   start: "2026-09-23",
   startHour: "16:00",
   end: "2026-11-06",
   endHour: "16:00",
   stage: inProgress,
   url: cremerjNotice,
+};
+
+const cremerjTechnology = {
+  ...cremerjBase,
+  professionalArea: technology,
+  requirement:
+    "Diploma de bacharelado ou curso superior de tecnologia na área de TI, reconhecido pelo MEC, conforme a Retificação II do Edital nº 1/2026.",
+  eligibility: technologist,
   changes: cremerjChanges,
 };
 
@@ -105,11 +112,7 @@ const ruralBase = {
   city: "Lotação a definir (RJ)",
   cities: ["Seropédica", "Nova Iguaçu", "Três Rios", "Campos dos Goytacazes"],
   salary: 5215.39,
-  salaryLabel: "Vencimento-base · 40 h/semana",
   board: "Comissão da UFRRJ",
-  requirement:
-    "Curso superior na área, segundo o Quadro 1 do Edital nº 52/2026. ADS é formação superior na área de TI. O edital usa uma categoria ampla, sem enumerar cursos.",
-  eligibility: "Superior na área de TI",
   start: "2026-08-19",
   end: "2026-09-17",
   stage: inProgress,
@@ -129,7 +132,17 @@ const ruralBase = {
   ],
 };
 
+const ruralTechnology = {
+  ...ruralBase,
+  professionalArea: technology,
+  salaryLabel: "Vencimento-base · 40 h/semana",
+  requirement:
+    "Curso superior na área, segundo o Quadro 1 do Edital nº 52/2026. ADS é formação superior na área de TI. O edital usa uma categoria ampla, sem enumerar cursos.",
+  eligibility: "Superior na área de TI",
+};
+
 const dataprevBase = {
+  professionalArea: technology,
   org: "Dataprev",
   kind: publicExam,
   ...capitalLocation,
@@ -148,6 +161,7 @@ const dataprevBase = {
 };
 
 const tribunalBase = {
+  professionalArea: technology,
   org: "TJRJ",
   kind: publicExam,
   ...capitalLocation,
@@ -183,7 +197,8 @@ export const opportunities: Opportunity[] = [
     org: "Fiotec / Bio-Manguinhos",
     role: "Analista de Desenvolvimento de Sistemas",
     kind: "Seleção simplificada",
-    area: "Desenvolvimento",
+    professionalArea: technology,
+    specialty: "Desenvolvimento",
     ...capitalLocation,
     salary: 9637.47,
     salaryLabel: "Salário mensal · 40 h/semana",
@@ -198,35 +213,47 @@ export const opportunities: Opportunity[] = [
     changes: [],
   },
   {
-    ...cremerjBase,
+    ...cremerjTechnology,
     id: "cremerj-dev",
     role: "Analista de Desenvolvimento de Sistemas",
-    area: "Desenvolvimento",
+    specialty: "Desenvolvimento",
   },
   {
-    ...cremerjBase,
+    ...cremerjTechnology,
     id: "cremerj-dba",
     role: "Analista de Banco de Dados (DBA)",
-    area: "Dados",
+    specialty: "Dados",
   },
   {
-    ...cremerjBase,
+    ...cremerjTechnology,
     id: "cremerj-ciencia-dados",
     role: "Analista de Ciência e Análise de Dados",
-    area: "Dados",
+    specialty: "Dados",
+  },
+  {
+    ...cremerjTechnology,
+    id: "cremerj-suporte",
+    role: "Analista de Suporte",
+    specialty: "Infraestrutura e suporte",
   },
   {
     ...cremerjBase,
-    id: "cremerj-suporte",
-    role: "Analista de Suporte",
-    area: "Infraestrutura e suporte",
+    id: "cremerj-contador",
+    role: "Contador",
+    professionalArea: "Contabilidade",
+    specialty: "Ciências Contábeis",
+    requirement:
+      "Graduação completa em Ciências Contábeis e habilitação profissional ativa e válida no Conselho Regional de Contabilidade (CRC).",
+    eligibility: "Graduação em Ciências Contábeis e CRC",
+    changes: cremerjChanges.filter((change) => change.kind === "Prazo"),
   },
   {
     id: "seplag-apo-ti",
     org: "SEPLAG-RJ",
     role: "Analista de Planejamento e Orçamento · TI",
     kind: publicExam,
-    area: "Gestão de TI",
+    professionalArea: technology,
+    specialty: "Gestão de TI",
     city: "Lotação a confirmar (RJ)",
     cities: [],
     salary: 7572.5,
@@ -245,45 +272,56 @@ export const opportunities: Opportunity[] = [
     changes: [],
   },
   {
-    ...ruralBase,
+    ...ruralTechnology,
     id: "ufrrj-sistemas",
     role: "Analista de TI · Sistemas",
-    area: "Desenvolvimento",
+    specialty: "Desenvolvimento",
+  },
+  {
+    ...ruralTechnology,
+    id: "ufrrj-infra",
+    role: "Analista de TI · Infraestrutura",
+    specialty: "Infraestrutura e suporte",
   },
   {
     ...ruralBase,
-    id: "ufrrj-infra",
-    role: "Analista de TI · Infraestrutura",
-    area: "Infraestrutura e suporte",
+    id: "ufrrj-fonoaudiologo",
+    role: "Fonoaudiólogo",
+    professionalArea: "Saúde",
+    specialty: "Fonoaudiologia",
+    salaryLabel: "Vencimento-base · 30 h/semana",
+    requirement:
+      "Curso superior em Fonoaudiologia e registro no conselho profissional competente, conforme o Anexo I.",
+    eligibility: "Graduação em Fonoaudiologia e registro profissional",
   },
   {
     ...dataprevBase,
     id: "dataprev-dev",
     role: "Analista de TI · Desenvolvimento de Software",
-    area: "Desenvolvimento",
+    specialty: "Desenvolvimento",
   },
   {
     ...dataprevBase,
     id: "dataprev-negocio",
     role: "Analista de TI · Análise de Negócio de TI",
-    area: "Gestão de TI",
+    specialty: "Gestão de TI",
   },
   {
     ...dataprevBase,
     id: "dataprev-seg",
     role: "Analista de TI · Segurança Cibernética e Proteção de Dados",
-    area: "Segurança da informação",
+    specialty: "Segurança da informação",
   },
   {
     ...tribunalBase,
     id: "tjrj-sistemas",
     role: "Analista Judiciário · Analista de Sistemas",
-    area: "Desenvolvimento",
+    specialty: "Desenvolvimento",
   },
   {
     ...tribunalBase,
     id: "tjrj-seguranca",
     role: "Analista Judiciário · Segurança da Informação",
-    area: "Segurança da informação",
+    specialty: "Segurança da informação",
   },
 ];

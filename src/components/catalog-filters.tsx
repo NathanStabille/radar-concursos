@@ -9,25 +9,35 @@ const filterDefinitions: {
   key: SelectFilter;
   label: string;
   placeholder: string;
-  values: FilterOption[];
+  values: (filters: Filters) => FilterOption[];
 }[] = [
   {
     key: "city",
     label: "Município",
     placeholder: "Todos os municípios",
-    values: options("city").map((city) => [city, city]),
+    values: () => options("city").map((city) => [city, city]),
   },
   {
-    key: "area",
-    label: "Área",
+    key: "professionalArea",
+    label: "Área profissional",
     placeholder: "Todas as áreas",
-    values: options("area").map((area) => [area, area]),
+    values: () => options("professionalArea").map((area) => [area, area]),
+  },
+  {
+    key: "specialty",
+    label: "Especialidade",
+    placeholder: "Todas as especialidades",
+    values: (filters) =>
+      options("specialty", filters.professionalArea).map((specialty) => [
+        specialty,
+        specialty,
+      ]),
   },
   {
     key: "salary",
     label: "Faixa salarial",
     placeholder: "Todas as faixas",
-    values: [
+    values: () => [
       ["low", "Abaixo de R$ 8 mil"],
       ["mid", "R$ 8 mil a menos de R$ 10 mil"],
       ["high", "A partir de R$ 10 mil"],
@@ -38,7 +48,7 @@ const filterDefinitions: {
     key: "status",
     label: "Situação",
     placeholder: "Todas as situações",
-    values: Object.entries(statusNames),
+    values: () => Object.entries(statusNames),
   },
 ];
 
@@ -69,7 +79,7 @@ export function CatalogFilters({ filters, onChange }: CatalogFiltersProps) {
                 onChange={(event) => onChange(key, event.target.value)}
               >
                 <option value="">{placeholder}</option>
-                {values.map(([value, name]) => (
+                {values(filters).map(([value, name]) => (
                   <option key={value} value={value}>
                     {name}
                   </option>

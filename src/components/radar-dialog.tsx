@@ -43,7 +43,8 @@ export function RadarDialog({
     value: (item: Opportunity) => string;
   }[] = [
     { name: "Município", value: (item) => item.city || "Não confirmado" },
-    { name: "Área", value: (item) => item.area },
+    { name: "Área profissional", value: (item) => item.professionalArea },
+    { name: "Especialidade", value: (item) => item.specialty },
     {
       name: "Remuneração",
       value: (item) =>
@@ -86,19 +87,14 @@ export function RadarDialog({
               </div>
               <h2 id="dialog-title">Critérios do radar</h2>
               <p>
-                O catálogo reúne cargos de TI com lotação no estado do Rio de
-                Janeiro e com escolaridade compatível com tecnólogo em Análise e
-                Desenvolvimento de Sistemas (ADS).
+                O catálogo reúne concursos públicos e seleções de diferentes
+                áreas profissionais com lotação no estado do Rio de Janeiro.
               </p>
               <ul className="criteria">
                 <li>
-                  Incluímos cargos que citam ADS, aceitam curso superior de
-                  tecnologia na área de TI ou aceitam graduação superior em
-                  qualquer área.
-                </li>
-                <li>
-                  Excluímos exigências exclusivas de bacharelado e cargos em que
-                  a aceitação de ADS ainda depende de esclarecimento oficial.
+                  Consultamos editais e retificações para identificar a formação
+                  exigida para cada cargo e sinalizar quando a aceitação de um
+                  diploma está expressa no edital.
                 </li>
                 <li>
                   Os detalhes registram requisitos adicionais publicados, como
@@ -122,14 +118,10 @@ export function RadarDialog({
                 <span className={"status " + status(modal.item, today)}>
                   {statusNames[status(modal.item, today)]}
                 </span>
-                <span className="area">{modal.item.area}</span>
               </div>
               <dl className="details-grid">
                 {comparisonFields
-                  .filter(
-                    (field) =>
-                      field.name !== "Área" && field.name !== "Situação",
-                  )
+                  .filter((field) => field.name !== "Situação")
                   .map((field) => (
                     <div
                       key={field.name}

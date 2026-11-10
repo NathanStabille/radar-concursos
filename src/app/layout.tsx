@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Radar Concursos | Concursos e seleções de TI",
+  title: "Radar Concursos | Concursos e seleções no RJ",
   description:
-    "Acompanhe editais de TI no estado do Rio de Janeiro compatíveis com tecnólogo em Análise e Desenvolvimento de Sistemas.",
+    "Encontre concursos públicos e seleções no Rio de Janeiro por área profissional e confira os requisitos de cada edital.",
   icons: { icon: "/favicon.svg" },
 };
 
