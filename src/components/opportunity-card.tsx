@@ -8,11 +8,19 @@ import {
   MapPin,
   ShieldCheck,
 } from "lucide-react";
+import type { WorkLocation } from "@/data/locations";
 import type { Opportunity } from "@/data/opportunities";
-import { currency, period, status, statusNames } from "@/lib/catalog";
+import {
+  currency,
+  locationSummary,
+  period,
+  status,
+  statusNames,
+} from "@/lib/catalog";
 
 type OpportunityCardProps = {
   item: Opportunity;
+  locations: WorkLocation[];
   today: string;
   isSaved: boolean;
   isSelected: boolean;
@@ -23,6 +31,7 @@ type OpportunityCardProps = {
 
 export function OpportunityCard({
   item,
+  locations,
   today,
   isSaved,
   isSelected,
@@ -42,7 +51,7 @@ export function OpportunityCard({
         </h3>
         <div className="record-meta">
           <span>
-            <MapPin size={14} /> {item.city || "Município não confirmado"}
+            <MapPin size={14} /> {locationSummary(locations)}
           </span>
           <span className="area">
             {item.professionalArea} · {item.specialty}

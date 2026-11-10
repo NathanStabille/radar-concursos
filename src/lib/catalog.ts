@@ -1,3 +1,4 @@
+import { stateNames, type WorkLocation } from "@/data/locations";
 import { opportunities, type Opportunity } from "@/data/opportunities";
 
 export const currency = new Intl.NumberFormat("pt-BR", {
@@ -14,7 +15,8 @@ export const statusNames = {
 };
 export const initialFilters = {
   search: "",
-  city: "",
+  state: "",
+  municipality: "",
   professionalArea: "",
   specialty: "",
   salary: "",
@@ -64,16 +66,73 @@ function normalize(value: string) {
 }
 
 export function options(
-  key: "city" | "professionalArea" | "specialty",
+  key: "professionalArea" | "specialty",
   professionalArea = "",
 ) {
   const matching = professionalArea
     ? opportunities.filter((item) => item.professionalArea === professionalArea)
     : opportunities;
-  const values = matching.flatMap((item) =>
-    key === "city" ? item.cities : [item[key]],
-  );
+  const values = matching.map((item) => item[key]);
   return [...new Set(values)].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+export const stateOptions = Object.entries(stateNames).sort(([, a], [, b]) =>
+  a.localeCompare(b, "pt-BR"),
+);
+
+const workLocations = opportunities.flatMap((item) => item.locations);
+export const coveredStateCount = new Set(
+  workLocations.map(({ state }) => state),
+).size;
+
+export function municipalityOptions(state: string): [string, string][] {
+  const cities = new Map<string, string>();
+  for (const location of workLocations) {
+    if (location.municipality && (!state || location.state === state)) {
+      cities.set(String(location.municipality.id), municipalityLabel(location));
+    }
+  }
+  return [...cities].sort(([, a], [, b]) => a.localeCompare(b, "pt-BR"));
+}
+
+export function matchingLocations(
+  locations: WorkLocation[],
+  {
+    state,
+    municipality,
+  }: Pick<typeof initialFilters, "state" | "municipality">,
+) {
+  return locations.filter(
+    (location) =>
+      (!state || state === location.state) &&
+      (!municipality || municipality === String(location.municipality?.id)),
+  );
+}
+
+function municipalityLabel(location: WorkLocation) {
+  return location.municipality
+    ? `${location.municipality.name}/${location.state}`
+    : location.state;
+}
+
+export function locationLabel(location: WorkLocation) {
+  const label = municipalityLabel(location);
+  if (!location.municipality) return `${label} · Município a confirmar`;
+  if (location.tentative) return `${label} · Lotação possível`;
+  if (location.reserveOnly) return `${label} · Cadastro de reserva`;
+  return label;
+}
+
+export function locationSummary(locations: WorkLocation[]) {
+  if (!locations.length) return "Lotação não confirmada";
+  if (locations.length === 1) return locationLabel(locations[0]);
+  const states = [...new Set(locations.map(({ state }) => state))];
+  if (locations.every(({ tentative }) => tentative)) {
+    return `Lotação a definir · ${states.join(", ")}`;
+  }
+  return states.length === 1
+    ? `${locations.length} localidades · ${states[0]}`
+    : `${locations.length} localidades em ${states.length} UFs`;
 }
 
 export const changes = opportunities
@@ -99,8 +158,10 @@ export function filterOpportunities(
           [
             item.org,
             item.role,
-            item.city,
-            ...item.cities,
+            ...item.locations.map(
+              (location) =>
+                `${municipalityLabel(location)} ${stateNames[location.state]}`,
+            ),
             item.professionalArea,
             item.specialty,
             item.board,
@@ -109,7 +170,11 @@ export function filterOpportunities(
         ).includes(normalize(filters.search.trim()))
       )
         return false;
-      if (filters.city && !item.cities.includes(filters.city)) return false;
+      if (
+        (filters.state || filters.municipality) &&
+        !matchingLocations(item.locations, filters).length
+      )
+        return false;
       if (
         filters.professionalArea &&
         filters.professionalArea !== item.professionalArea

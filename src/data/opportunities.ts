@@ -1,3 +1,5 @@
+import { municipalities, type WorkLocation } from "./locations";
+
 export const reviewDate = "10/11/2026";
 
 export type Change = {
@@ -17,8 +19,8 @@ export type Opportunity = {
   kind: "Concurso público" | "Seleção simplificada";
   professionalArea: string;
   specialty: string;
-  city: string;
-  cities: string[];
+  locations: WorkLocation[];
+  examLocation?: string;
   salary: number | null;
   salaryLabel: string;
   board: string;
@@ -34,8 +36,22 @@ export type Opportunity = {
   changes: Change[];
 };
 
-const capital = "Rio de Janeiro";
-const capitalLocation = { city: capital, cities: [capital] };
+const capitalLocation = [municipalities.rio];
+const ruralLocations = [
+  municipalities.seropedica,
+  municipalities.novaIguacu,
+  municipalities.tresRios,
+  municipalities.campos,
+].map((location): WorkLocation => ({ ...location, tentative: true }));
+const dataprevLocations = [
+  municipalities.brasilia,
+  municipalities.rio,
+  municipalities.saoPaulo,
+  municipalities.fortaleza,
+  municipalities.joaoPessoa,
+  municipalities.natal,
+  municipalities.florianopolis,
+];
 const publicExam = "Concurso público" as const;
 const inProgress = "ongoing" as const;
 const technology = "Tecnologia da Informação";
@@ -85,7 +101,8 @@ const cremerjChanges: Change[] = [
 const cremerjBase = {
   org: "CREMERJ",
   kind: publicExam,
-  ...capitalLocation,
+  locations: capitalLocation,
+  examLocation: "Rio de Janeiro, Campos dos Goytacazes ou Volta Redonda (RJ).",
   salary: 7765.48,
   salaryLabel: "Salário inicial · 40 h/semana",
   board: "Instituto Consulplan",
@@ -109,8 +126,8 @@ const cremerjTechnology = {
 const ruralBase = {
   org: "UFRRJ",
   kind: publicExam,
-  city: "Lotação a definir (RJ)",
-  cities: ["Seropédica", "Nova Iguaçu", "Três Rios", "Campos dos Goytacazes"],
+  locations: ruralLocations,
+  examLocation: "Campus da UFRRJ em Seropédica (RJ).",
   salary: 5215.39,
   board: "Comissão da UFRRJ",
   start: "2026-08-19",
@@ -145,7 +162,7 @@ const dataprevBase = {
   professionalArea: technology,
   org: "Dataprev",
   kind: publicExam,
-  ...capitalLocation,
+  examLocation: "Capitais brasileiras, conforme a opção na inscrição.",
   salary: 10685.44,
   salaryLabel: "Salário nominal + adicional de atividade",
   board: "FGV Conhecimento",
@@ -156,7 +173,7 @@ const dataprevBase = {
   end: "2026-08-06",
   endHour: "16:00",
   stage: inProgress,
-  url: "https://conhecimento.fgv.br/concursos/dataprev26",
+  url: "https://conhecimento.fgv.br/sites/default/files/concursos/29.10-edital-2-retificacao-dataprev.pdf",
   changes: [],
 };
 
@@ -164,7 +181,9 @@ const tribunalBase = {
   professionalArea: technology,
   org: "TJRJ",
   kind: publicExam,
-  ...capitalLocation,
+  locations: [{ state: "RJ" }] satisfies WorkLocation[],
+  examLocation: "Rio de Janeiro (RJ).",
+  note: "O cadastro de reserva destina-se à 1ª Região do TJRJ. O município da prova não confirma a lotação.",
   salary: 9363.84,
   salaryLabel: "Remuneração inicial do edital",
   board: "FGV Conhecimento",
@@ -199,7 +218,7 @@ export const opportunities: Opportunity[] = [
     kind: "Seleção simplificada",
     professionalArea: technology,
     specialty: "Desenvolvimento",
-    ...capitalLocation,
+    locations: capitalLocation,
     salary: 9637.47,
     salaryLabel: "Salário mensal · 40 h/semana",
     board: "Fiotec",
@@ -254,8 +273,8 @@ export const opportunities: Opportunity[] = [
     kind: publicExam,
     professionalArea: technology,
     specialty: "Gestão de TI",
-    city: "Lotação a confirmar (RJ)",
-    cities: [],
+    locations: [{ state: "RJ" }],
+    examLocation: "Rio de Janeiro (RJ).",
     salary: 7572.5,
     salaryLabel: "Vencimento-base · 40 h/semana",
     board: "FGV Conhecimento",
@@ -297,18 +316,34 @@ export const opportunities: Opportunity[] = [
   {
     ...dataprevBase,
     id: "dataprev-dev",
+    locations: dataprevLocations.map((location) => ({
+      ...location,
+      reserveOnly: ["DF", "RJ", "SP"].includes(location.state)
+        ? true
+        : undefined,
+    })),
     role: "Analista de TI · Desenvolvimento de Software",
     specialty: "Desenvolvimento",
   },
   {
     ...dataprevBase,
     id: "dataprev-negocio",
+    locations: dataprevLocations.map((location) => ({
+      ...location,
+      reserveOnly: location.state !== "DF" ? true : undefined,
+    })),
     role: "Analista de TI · Análise de Negócio de TI",
     specialty: "Gestão de TI",
   },
   {
     ...dataprevBase,
     id: "dataprev-seg",
+    locations: dataprevLocations.map((location) => ({
+      ...location,
+      reserveOnly: ["CE", "PB", "RN"].includes(location.state)
+        ? true
+        : undefined,
+    })),
     role: "Analista de TI · Segurança Cibernética e Proteção de Dados",
     specialty: "Segurança da informação",
   },

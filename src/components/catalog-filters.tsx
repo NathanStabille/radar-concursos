@@ -1,5 +1,11 @@
 import { ChevronDown, Search } from "lucide-react";
-import { initialFilters, options, statusNames } from "@/lib/catalog";
+import {
+  initialFilters,
+  municipalityOptions,
+  options,
+  stateOptions,
+  statusNames,
+} from "@/lib/catalog";
 
 type Filters = typeof initialFilters;
 type SelectFilter = Exclude<keyof Filters, "search">;
@@ -12,10 +18,17 @@ const filterDefinitions: {
   values: (filters: Filters) => FilterOption[];
 }[] = [
   {
-    key: "city",
-    label: "Município",
+    key: "state",
+    label: "UF de lotação",
+    placeholder: "Todas as UFs",
+    values: () =>
+      stateOptions.map(([code, name]) => [code, `${name} (${code})`]),
+  },
+  {
+    key: "municipality",
+    label: "Município de lotação",
     placeholder: "Todos os municípios",
-    values: () => options("city").map((city) => [city, city]),
+    values: (filters) => municipalityOptions(filters.state),
   },
   {
     key: "professionalArea",
@@ -66,7 +79,7 @@ export function CatalogFilters({ filters, onChange }: CatalogFiltersProps) {
         <input
           value={filters.search}
           onChange={(event) => onChange("search", event.target.value)}
-          placeholder="Buscar cargo, órgão ou palavra-chave"
+          placeholder="Buscar cargo, órgão, município ou palavra-chave"
         />
       </label>
       <div className="filters">

@@ -45,13 +45,7 @@ function RadarArt() {
       </g>
       <g fill="#3a5727" fontFamily="monospace" fontSize="9" letterSpacing="2">
         <text x="26" y="39">
-          SETOR 21 / RJ
-        </text>
-        <text x="47" y="215">
-          22° 54′ S
-        </text>
-        <text x="325" y="225">
-          43° 12′ O
+          RADAR / BR
         </text>
       </g>
     </svg>
@@ -64,7 +58,7 @@ export function RadarHero() {
       <RadarArt />
       <div className="hero-copy">
         <div className="eyebrow">
-          <span className="signal"></span> RADAR DE EDITAIS / RJ
+          <span className="signal"></span> RADAR DE EDITAIS / BR
         </div>
         <h1>
           Concursos públicos
@@ -72,8 +66,8 @@ export function RadarHero() {
           para várias profissões<span>.</span>
         </h1>
         <p>
-          Encontre concursos e seleções no Rio de Janeiro por área profissional
-          e confira a formação exigida em cada edital.
+          Explore concursos e seleções por estado, município de lotação e área
+          profissional. Confira a formação exigida em cada edital.
         </p>
       </div>
       <div className="hero-note">

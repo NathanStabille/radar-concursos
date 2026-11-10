@@ -10,7 +10,13 @@ import {
   X,
 } from "lucide-react";
 import { reviewDate, type Opportunity } from "@/data/opportunities";
-import { currency, period, status, statusNames } from "@/lib/catalog";
+import {
+  currency,
+  locationLabel,
+  period,
+  status,
+  statusNames,
+} from "@/lib/catalog";
 import { Timeline } from "./timeline";
 
 export type Modal =
@@ -42,7 +48,15 @@ export function RadarDialog({
     name: string;
     value: (item: Opportunity) => string;
   }[] = [
-    { name: "Município", value: (item) => item.city || "Não confirmado" },
+    {
+      name: "Lotação",
+      value: (item) =>
+        item.locations.map(locationLabel).join("; ") || "Não confirmada",
+    },
+    {
+      name: "Local de prova",
+      value: (item) => item.examLocation || "Não informado ou não se aplica",
+    },
     { name: "Área profissional", value: (item) => item.professionalArea },
     { name: "Especialidade", value: (item) => item.specialty },
     {
@@ -88,7 +102,9 @@ export function RadarDialog({
               <h2 id="dialog-title">Critérios do radar</h2>
               <p>
                 O catálogo reúne concursos públicos e seleções de diferentes
-                áreas profissionais com lotação no estado do Rio de Janeiro.
+                áreas profissionais no Brasil. A cobertura inicial é parcial. Os
+                filtros de UF e município usam a lotação prevista no edital. O
+                local de prova aparece separadamente.
               </p>
               <ul className="criteria">
                 <li>
@@ -126,7 +142,10 @@ export function RadarDialog({
                     <div
                       key={field.name}
                       className={
-                        field.name === "Escolaridade e requisitos" ? "full" : ""
+                        field.name === "Escolaridade e requisitos" ||
+                        field.name === "Lotação"
+                          ? "full"
+                          : ""
                       }
                     >
                       <dt>{field.name}</dt>

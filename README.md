@@ -1,6 +1,6 @@
 # Radar Concursos
 
-Painel em português de concursos públicos e seleções de diferentes áreas profissionais no estado do Rio de Janeiro.
+Painel em português de concursos públicos e seleções de diferentes áreas profissionais no Brasil, com cobertura inicial parcial.
 
 ## Rodar no VS Code
 
@@ -24,6 +24,8 @@ Abra [http://localhost:3000](http://localhost:3000). Use `npm run typecheck` par
 ## Atualizar o catálogo
 
 Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Mantenha o `id` dos cargos existentes para preservar os favoritos e use datas no formato `AAAA-MM-DD`. Use `professionalArea` para a categoria ampla (como Saúde) e `specialty` para a especialidade (como Fonoaudiologia). Registre formação e habilitação em `requirement`. Atualize `reviewDate` com a data da conferência e registre retificações em `changes`.
+
+Use `locations` para listar as UFs e municípios de lotação. Informe os códigos do [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) em `municipality.id`. Se o edital definir somente a UF, omita o município. Marque lotações possíveis com `tentative` e localidades que oferecem apenas cadastro de reserva com `reserveOnly`. Registre locais de prova separadamente em `examLocation`.
 
 A situação das inscrições usa o horário de São Paulo. A curadoria é manual. Favoritos ficam no navegador. O projeto dispensa API, banco de dados, login e variáveis de ambiente.
 

@@ -20,8 +20,10 @@ import {
 import { opportunities, reviewDate } from "@/data/opportunities";
 import {
   changes,
+  coveredStateCount,
   filterOpportunities,
   initialFilters,
+  matchingLocations,
   localDateTime,
   status,
 } from "@/lib/catalog";
@@ -105,11 +107,12 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   );
 
   function setFilter(key: keyof typeof initialFilters, value: string) {
-    setFilters((current) =>
-      key === "professionalArea"
-        ? { ...current, professionalArea: value, specialty: "" }
-        : { ...current, [key]: value },
-    );
+    setFilters((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "professionalArea" && { specialty: "" }),
+      ...(key === "state" && { municipality: "" }),
+    }));
   }
 
   function navigate(next: Tab) {
@@ -131,11 +134,12 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             </span>
             <span>
               Radar <strong>Concursos</strong>
-              <small>RJ</small>
+              <small>BR</small>
             </span>
           </button>
           <div className="top-region">
-            <MapPin size={15} /> Estado do Rio de Janeiro
+            <MapPin size={15} /> Catálogo inicial · {coveredStateCount} UFs com
+            registros
           </div>
           <button
             className="top-button"
@@ -292,6 +296,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                   <OpportunityCard
                     key={item.id}
                     item={item}
+                    locations={matchingLocations(item.locations, filters)}
                     today={today}
                     isSaved={favorites.includes(item.id)}
                     isSelected={selected.includes(item.id)}
@@ -318,7 +323,9 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 <p>
                   {tab === "favorites" && !activeFilters
                     ? "Use o ícone de marcador para salvar um edital."
-                    : "Experimente ampliar a busca ou limpar os filtros."}
+                    : filters.state
+                      ? "A cobertura é parcial. Confira outras UFs ou limpe os filtros."
+                      : "Experimente ampliar a busca ou limpar os filtros."}
                 </p>
                 <button
                   className="outline"
