@@ -55,6 +55,10 @@ export const municipalities = {
   },
   brasilia: { state: "DF", municipality: { id: 5300108, name: "Brasília" } },
   saoPaulo: { state: "SP", municipality: { id: 3550308, name: "São Paulo" } },
+  praiaGrande: {
+    state: "SP",
+    municipality: { id: 3541000, name: "Praia Grande" },
+  },
   fortaleza: { state: "CE", municipality: { id: 2304400, name: "Fortaleza" } },
   joaoPessoa: {
     state: "PB",

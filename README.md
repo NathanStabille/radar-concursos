@@ -17,18 +17,25 @@ Abra [http://localhost:3000](http://localhost:3000). Use `npm run typecheck` par
 
 - `src/app/` contém a página, os metadados e o CSS.
 - `src/components/` contém o painel, os cartões, os detalhes, a comparação e o histórico.
-- `src/data/opportunities.ts` guarda as oportunidades, as fontes e as retificações.
+- `src/data/opportunities.ts` guarda os cargos e seus dados vigentes.
+- `src/data/notices.ts` guarda os editais, as fontes oficiais e as retificações.
 - `src/app/api/official-notices/` recebe as consultas sob demanda e `src/lib/official-notices/` integra o Diário Oficial do RJ.
 - `src/lib/catalog.ts` concentra a busca, os filtros, a ordenação e as regras de situação.
 - `public/` contém o ícone do site.
 
 ## Atualizar o catálogo
 
-Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Mantenha o `id` dos cargos existentes para preservar os favoritos e use datas no formato `AAAA-MM-DD`. Use `professionalArea` para a categoria ampla (como Saúde) e `specialty` para a especialidade (como Fonoaudiologia). Registre formação e habilitação em `requirement`. Atualize `reviewDate` com a data da conferência e registre retificações em `changes`.
+Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Mantenha o `id` dos cargos existentes para preservar os favoritos e use datas no formato `AAAA-MM-DD`. Use `professionalArea` para a categoria ampla (como Saúde) e `specialty` para a especialidade (como Fonoaudiologia). Registre formação e habilitação em `requirement`. Atualize `reviewDate` com a data da conferência.
 
 Use `locations` para listar as UFs e municípios de lotação. Informe os códigos do [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) em `municipality.id`. Se o edital definir somente a UF, omita o município. Marque lotações possíveis com `tentative` e localidades que oferecem apenas cadastro de reserva com `reserveOnly`. Registre locais de prova separadamente em `examLocation`.
 
 A situação das inscrições usa o horário de São Paulo. A curadoria é manual. Favoritos ficam no navegador. O projeto dispensa banco de dados, login e variáveis de ambiente.
+
+## Registrar retificações conferidas
+
+Use `noticeId` para vincular o cargo ao edital em `src/data/notices.ts`. Registre cada publicação oficial uma única vez em `amendments`, com identificador estável dentro do edital, data, link e lista de alterações. Use `before` e `after` para os valores conferidos, e `opportunityIds` quando a mudança só se aplicar a alguns cargos. Atualize os dados vigentes dos cargos afetados na mesma alteração.
+
+O histórico público é gerado a partir desse registro revisado. As matérias encontradas na busca oficial só entram no catálogo após conferência manual do documento e vínculo com o edital de origem.
 
 ## Busca sob demanda
 

@@ -1203,3 +1203,32 @@ th small {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.amendment-changes {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.amendment-change {
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.amendment-change h4 {
+  margin: 4px 0;
+}
+
+.amendment-change dl {
+  display: grid;
+  gap: 6px 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+  margin: 6px 0;
+}
+
+.amendment-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}

@@ -17,9 +17,9 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { changeCategories, type ChangeCategory } from "@/data/notices";
 import { opportunities, reviewDate } from "@/data/opportunities";
 import {
-  changes,
   coveredStateCount,
   filterOpportunities,
   initialFilters,
@@ -27,6 +27,7 @@ import {
   localDateTime,
   status,
 } from "@/lib/catalog";
+import { amendmentCount, getAmendmentHistory } from "@/lib/amendments";
 import { CatalogFilters } from "./catalog-filters";
 import { OfficialSearch } from "./official-search";
 import { OpportunityCard } from "./opportunity-card";
@@ -53,7 +54,9 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   const [modal, setModal] = useState<Modal | null>(null);
   const [today, setToday] = useState(initialTime);
   const [notice, setNotice] = useState("");
-  const [historyKind, setHistoryKind] = useState("");
+  const [historyCategory, setHistoryCategory] = useState<ChangeCategory | "">(
+    "",
+  );
 
   useEffect(() => {
     const updateDate = () => setToday(localDateTime());
@@ -186,8 +189,8 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
               <History size={20} />
             </span>
             <div>
-              <strong>{String(changes.length).padStart(2, "0")}</strong>
-              <span>Mudanças registradas</span>
+              <strong>{String(amendmentCount).padStart(2, "0")}</strong>
+              <span>Publicações no histórico</span>
             </div>
             <ArrowRight className="summary-arrow" size={17} />
           </button>
@@ -220,26 +223,31 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             <div className="section-heading">
               <div>
                 <h2>Histórico de mudanças</h2>
-                <p>Retificações e comunicados sobre prazos e escolaridade.</p>
+                <p>Compare o antes e o depois de cada alteração publicada.</p>
               </div>
               <label className="select-wrap">
                 <span className="sr-only">Tipo de mudança</span>
                 <select
-                  value={historyKind}
-                  onChange={(event) => setHistoryKind(event.target.value)}
+                  value={historyCategory}
+                  onChange={(event) =>
+                    setHistoryCategory(
+                      event.target.value as ChangeCategory | "",
+                    )
+                  }
                 >
                   <option value="">Todos os tipos</option>
-                  <option>Prazo</option>
-                  <option>Escolaridade</option>
+                  {changeCategories.map((category) => (
+                    <option key={category}>{category}</option>
+                  ))}
                 </select>
                 <ChevronDown size={15} />
               </label>
             </div>
             <div className="history-panel">
               <Timeline
-                entries={changes.filter(
-                  (change) => !historyKind || change.kind === historyKind,
-                )}
+                entries={getAmendmentHistory({
+                  category: historyCategory || undefined,
+                })}
               />
             </div>
           </section>

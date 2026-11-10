@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { getNotice } from "@/data/notices";
 import { reviewDate, type Opportunity } from "@/data/opportunities";
 import {
   currency,
@@ -17,6 +18,7 @@ import {
   status,
   statusNames,
 } from "@/lib/catalog";
+import { getAmendmentHistory } from "@/lib/amendments";
 import { Timeline } from "./timeline";
 
 export type Modal =
@@ -160,20 +162,22 @@ export function RadarDialog({
               )}
               <a
                 className="primary"
-                href={modal.item.url}
+                href={getNotice(modal.item.noticeId).source.url}
                 target="_blank"
                 rel="noreferrer"
               >
-                Abrir fonte oficial <ExternalLink size={16} />
+                {getNotice(modal.item.noticeId).source.label}{" "}
+                <ExternalLink size={16} />
               </a>
               <div className="dialog-history">
                 <h3>
                   <History size={18} /> Histórico do cargo
                 </h3>
                 <Timeline
-                  entries={[...modal.item.changes].sort((a, b) =>
-                    b.date.localeCompare(a.date),
-                  )}
+                  entries={getAmendmentHistory({
+                    noticeId: modal.item.noticeId,
+                    opportunityId: modal.item.id,
+                  })}
                 />
               </div>
             </>
@@ -223,7 +227,11 @@ export function RadarDialog({
                       <th scope="row">Fonte oficial</th>
                       {compared.map((item) => (
                         <td key={item.id}>
-                          <a href={item.url} target="_blank" rel="noreferrer">
+                          <a
+                            href={getNotice(item.noticeId).source.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
                             Consultar <ArrowUpRight size={14} />
                           </a>
                         </td>

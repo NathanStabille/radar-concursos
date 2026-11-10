@@ -1,20 +1,11 @@
 import { municipalities, type WorkLocation } from "./locations";
+import { getNotice, type NoticeId } from "./notices";
 
 export const reviewDate = "10/11/2026";
 
-export type Change = {
+type OpportunityEntry = {
   id: string;
-  org: string;
-  date: string;
-  kind: "Prazo" | "Escolaridade";
-  title: string;
-  description: string;
-  url: string;
-};
-
-export type Opportunity = {
-  id: string;
-  org: string;
+  noticeId: NoticeId;
   role: string;
   kind: "Concurso público" | "Seleção simplificada";
   professionalArea: string;
@@ -32,9 +23,9 @@ export type Opportunity = {
   endHour?: string;
   stage: "ongoing" | "closed" | "finished";
   note?: string;
-  url: string;
-  changes: Change[];
 };
+
+export type Opportunity = OpportunityEntry & { org: string };
 
 const capitalLocation = [municipalities.rio];
 const ruralLocations = [
@@ -59,47 +50,8 @@ const explicit = "ADS citado no edital";
 const technologist = "Tecnólogo em TI aceito";
 const technologyDegree =
   "Diploma registrado de bacharelado ou tecnólogo em TI, de instituição credenciada pelo MEC, conforme o Anexo II.";
-const cremerj =
-  "https://portal.cremerj.org.br/noticias/cremerj-torna-publica-prorrogacao-de-inscricoes-para-concurso-publico";
-const cremerjNotice =
-  "https://cdnsite.institutoconsulplan.org.br/concursos/1337/337e753b4a834b4ba9de5a728159457b.pdf";
-const cremerjAmendment =
-  "https://jcconcursos.com.br/media/uploads/anexos/concurso-cremerj-edital-1-2026-retificacao-2.pdf";
-const cremerjChanges: Change[] = [
-  {
-    id: "cremerj-extension-2",
-    org: "CREMERJ",
-    date: "2026-10-29",
-    kind: "Prazo",
-    title: "Inscrições prorrogadas até 6 de novembro",
-    description:
-      "O encerramento passou de 29/10 para 06/11/2026, às 16h, no horário de Brasília.",
-    url: cremerj,
-  },
-  {
-    id: "cremerj-extension-1",
-    org: "CREMERJ",
-    date: "2026-10-02",
-    kind: "Prazo",
-    title: "Primeira prorrogação de inscrições",
-    description:
-      "A Retificação II alterou a data final de 22/10 para 29/10/2026.",
-    url: cremerjAmendment,
-  },
-  {
-    id: "cremerj-schooling",
-    org: "CREMERJ",
-    date: "2026-10-02",
-    kind: "Escolaridade",
-    title: "Tecnólogo passou a ser aceito",
-    description:
-      "A Retificação II passou a aceitar curso superior de tecnologia na área de TI para Analista de Banco de Dados, de Desenvolvimento de Sistemas, de Ciência e Análise de Dados e de Suporte.",
-    url: cremerjAmendment,
-  },
-];
-
 const cremerjBase = {
-  org: "CREMERJ",
+  noticeId: "cremerj-01-2026" as const,
   kind: publicExam,
   locations: capitalLocation,
   examLocation: "Rio de Janeiro, Campos dos Goytacazes ou Volta Redonda (RJ).",
@@ -111,7 +63,6 @@ const cremerjBase = {
   end: "2026-11-06",
   endHour: "16:00",
   stage: inProgress,
-  url: cremerjNotice,
 };
 
 const cremerjTechnology = {
@@ -120,11 +71,10 @@ const cremerjTechnology = {
   requirement:
     "Diploma de bacharelado ou curso superior de tecnologia na área de TI, reconhecido pelo MEC, conforme a Retificação II do Edital nº 1/2026.",
   eligibility: technologist,
-  changes: cremerjChanges,
 };
 
 const ruralBase = {
-  org: "UFRRJ",
+  noticeId: "ufrrj-52-2026" as const,
   kind: publicExam,
   locations: ruralLocations,
   examLocation: "Campus da UFRRJ em Seropédica (RJ).",
@@ -134,19 +84,6 @@ const ruralBase = {
   end: "2026-09-17",
   stage: inProgress,
   note: "Município de lotação ainda não confirmado. O edital lista Seropédica, Nova Iguaçu, Três Rios e Campos dos Goytacazes como possibilidades, a critério da UFRRJ.",
-  url: "https://servicos.ufrrj.br/concursos/editais/EDITAL52-2026-TAE_SUPERIOR_retificado_.pdf",
-  changes: [
-    {
-      id: "ufrrj-payment",
-      org: "UFRRJ",
-      date: "2026-09-18",
-      kind: "Prazo" as const,
-      title: "Pagamento prorrogado",
-      description:
-        "A taxa pôde ser paga até 17h de 18/09/2026 com nova GRU. O período de inscrição permaneceu encerrado em 17/09.",
-      url: "https://servicos.ufrrj.br/concursos/editais/AVISO_DE_PRORROGACAO_DE_DATA_DE_PAGAMENTO.pdf",
-    },
-  ],
 };
 
 const ruralTechnology = {
@@ -160,7 +97,7 @@ const ruralTechnology = {
 
 const dataprevBase = {
   professionalArea: technology,
-  org: "Dataprev",
+  noticeId: "dataprev-2026" as const,
   kind: publicExam,
   examLocation: "Capitais brasileiras, conforme a opção na inscrição.",
   salary: 10685.44,
@@ -173,13 +110,11 @@ const dataprevBase = {
   end: "2026-08-06",
   endHour: "16:00",
   stage: inProgress,
-  url: "https://conhecimento.fgv.br/sites/default/files/concursos/29.10-edital-2-retificacao-dataprev.pdf",
-  changes: [],
 };
 
 const tribunalBase = {
   professionalArea: technology,
-  org: "TJRJ",
+  noticeId: "tjrj-01-2025" as const,
   kind: publicExam,
   locations: [{ state: "RJ" }] satisfies WorkLocation[],
   examLocation: "Rio de Janeiro (RJ).",
@@ -195,25 +130,12 @@ const tribunalBase = {
   end: "2025-11-27",
   endHour: "16:00",
   stage: "finished" as const,
-  url: "https://conhecimento.fgv.br/concursos/tjrjservidores25/01",
-  changes: [
-    {
-      id: "tjrj-exam-time",
-      org: "TJRJ",
-      date: "2025-10-27",
-      kind: "Prazo" as const,
-      title: "Horário de prova alterado",
-      description:
-        "A primeira retificação mudou o horário de início da prova de 13h para 14h30 e o fechamento dos portões de 12h30 para 14h em 01/02/2026.",
-      url: "https://conhecimento.fgv.br/sites/default/files/concursos/1a-retificacao-edital-de-abertura-tjrj-analista-judiciario-24.10-sugestoes_0.pdf",
-    },
-  ],
 };
 
-export const opportunities: Opportunity[] = [
+const entries: OpportunityEntry[] = [
   {
     id: "fiotec-bio",
-    org: "Fiotec / Bio-Manguinhos",
+    noticeId: "fiotec-bio-004-fio-25" as const,
     role: "Analista de Desenvolvimento de Sistemas",
     kind: "Seleção simplificada",
     professionalArea: technology,
@@ -228,8 +150,6 @@ export const opportunities: Opportunity[] = [
     end: "2026-11-07",
     stage: "closed",
     note: "A chamada confirma o prazo final, mas não indica expressamente o dia de abertura das inscrições.",
-    url: "https://www.fiotec.fiocruz.br/pt/vagas-projetos/processos-seletivos-simplificados/em-aberto/analista-de-desenvolvimento-de-sistemas-bio-004-fio-24-1-vaga",
-    changes: [],
   },
   {
     ...cremerjTechnology,
@@ -264,11 +184,10 @@ export const opportunities: Opportunity[] = [
     requirement:
       "Graduação completa em Ciências Contábeis e habilitação profissional ativa e válida no Conselho Regional de Contabilidade (CRC).",
     eligibility: "Graduação em Ciências Contábeis e CRC",
-    changes: cremerjChanges.filter((change) => change.kind === "Prazo"),
   },
   {
     id: "seplag-apo-ti",
-    org: "SEPLAG-RJ",
+    noticeId: "seplag-rj-2026" as const,
     role: "Analista de Planejamento e Orçamento · TI",
     kind: publicExam,
     professionalArea: technology,
@@ -287,8 +206,6 @@ export const opportunities: Opportunity[] = [
     endHour: "16:00",
     stage: inProgress,
     note: "Município de lotação não confirmado. A cidade indicada para a prova não comprova o local de trabalho.",
-    url: "https://conhecimento.fgv.br/concursos/seplagrj",
-    changes: [],
   },
   {
     ...ruralTechnology,
@@ -359,4 +276,27 @@ export const opportunities: Opportunity[] = [
     role: "Analista Judiciário · Segurança da Informação",
     specialty: "Segurança da informação",
   },
+  {
+    id: "praia-grande-medico-trabalho",
+    noticeId: "praia-grande-001-2026",
+    role: "Médico Mensalista do Trabalho",
+    kind: publicExam,
+    professionalArea: "Saúde",
+    specialty: "Medicina do Trabalho",
+    locations: [municipalities.praiaGrande],
+    salary: 5773.44,
+    salaryLabel: "Vencimento-base · 20 h/semana",
+    board: "IBAM",
+    requirement:
+      "Graduação em Medicina, registro no CRM e certificado de residência médica ou Registro de Qualificação de Especialista no CREMESP, conforme o edital.",
+    eligibility: "Graduação em Medicina e registro profissional",
+    start: "2026-04-25",
+    end: "2026-05-20",
+    stage: "finished",
+  },
 ];
+
+export const opportunities: Opportunity[] = entries.map((item) => ({
+  ...item,
+  org: getNotice(item.noticeId).org,
+}));

@@ -135,14 +135,6 @@ export function locationSummary(locations: WorkLocation[]) {
     : `${locations.length} localidades em ${states.length} UFs`;
 }
 
-export const changes = opportunities
-  .flatMap((item) => item.changes)
-  .filter(
-    (change, index, all) =>
-      all.findIndex((other) => other.id === change.id) === index,
-  )
-  .sort((a, b) => b.date.localeCompare(a.date));
-
 export function filterOpportunities(
   filters: typeof initialFilters,
   sort: string,
