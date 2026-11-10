@@ -1232,3 +1232,21 @@ th small {
   flex-wrap: wrap;
   gap: 4px 14px;
 }
+
+.source-publications {
+  margin: 4px 0;
+}
+
+.source-publications summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.source-publications ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+
+.source-publications li + li {
+  margin-top: 5px;
+}

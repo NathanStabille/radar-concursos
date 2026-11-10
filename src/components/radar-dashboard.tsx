@@ -33,6 +33,7 @@ import { OfficialSearch } from "./official-search";
 import { OpportunityCard } from "./opportunity-card";
 import { RadarDialog, type Modal } from "./radar-dialog";
 import { RadarHero } from "./radar-hero";
+import { SourceMonitor } from "./source-monitor";
 import { Timeline } from "./timeline";
 
 const favoritesKey = "radar-ads-favorites-v1";
@@ -217,7 +218,10 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
         </nav>
 
         {tab === "official" ? (
-          <OfficialSearch currentMonth={today.slice(0, 7)} />
+          <>
+            <OfficialSearch currentMonth={today.slice(0, 7)} />
+            <SourceMonitor />
+          </>
         ) : tab === "history" ? (
           <section className="main-section">
             <div className="section-heading">

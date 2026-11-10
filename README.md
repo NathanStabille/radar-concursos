@@ -29,7 +29,7 @@ Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Man
 
 Use `locations` para listar as UFs e municípios de lotação. Informe os códigos do [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) em `municipality.id`. Se o edital definir somente a UF, omita o município. Marque lotações possíveis com `tentative` e localidades que oferecem apenas cadastro de reserva com `reserveOnly`. Registre locais de prova separadamente em `examLocation`.
 
-A situação das inscrições usa o horário de São Paulo. A curadoria é manual. Favoritos ficam no navegador. O projeto dispensa banco de dados, login e variáveis de ambiente.
+A situação das inscrições usa o horário de São Paulo. A curadoria é manual. Favoritos ficam no navegador. O catálogo e a busca sob demanda dispensam banco de dados, login e variáveis de ambiente.
 
 ## Registrar retificações conferidas
 
@@ -42,6 +42,20 @@ O histórico público é gerado a partir desse registro revisado. As matérias e
 A aba **Busca oficial** consulta o índice público do Diário Oficial do RJ por palavra-chave e mês e exibe até 25 matérias, com data, link oficial e indicação de revisão pendente. O catálogo revisado continua separado. O Diário Oficial da União tem acesso externo nesta etapa.
 
 A API interna `GET /api/official-notices?q=concurso&month=2026-11` consulta o índice no momento da solicitação. A página principal continua pré-renderizada. A consulta usa uma função Next.js na Vercel e requer o preset Next.js com o diretório de saída no padrão, sem apontar para `out/`.
+
+## Ativar o monitoramento diário
+
+O monitoramento consulta o Diário Oficial do RJ, a UFRRJ e a Prefeitura de Praia Grande. Registra o horário de cada tentativa e guarda a última leitura bem-sucedida, inclusive quando a fonte falha. As publicações continuam pendentes de revisão e o DOU segue com consulta externa.
+
+1. Conecte uma instância do **Upstash Redis** ao projeto de produção na Vercel. Confirme as variáveis `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN`. Se a integração usar outros nomes, copie os valores da aba REST do Upstash para essas variáveis.
+2. Defina `CRON_SECRET` em produção com um segredo aleatório (por exemplo, gere-o com `openssl rand -hex 32`). Guarde as credenciais apenas no ambiente da Vercel ou no seu `.env.local`.
+3. Faça um novo deploy de produção e confira **Schedules → Cron Jobs**. O `vercel.json` agenda `/api/cron/official-sources` diariamente às 15h UTC, na janela das 12h em Brasília.
+4. Após a primeira execução, abra **Busca oficial → Monitoramento de fontes** para ver a situação. A rota pública `GET /api/official-sources` lê o registro. A atualização exige o cabeçalho `Authorization: Bearer <CRON_SECRET>`.
+
+Sem as variáveis de armazenamento, a busca sob demanda e o catálogo continuam disponíveis e a interface indica que o monitoramento está pendente de configuração.
+
+- [Agendamentos da Vercel](https://vercel.com/docs/schedules/cron-jobs)
+- [Upstash Redis na Vercel](https://vercel.com/marketplace/upstash)
 
 ## Publicar na Vercel
 
