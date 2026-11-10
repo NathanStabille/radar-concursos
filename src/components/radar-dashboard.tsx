@@ -28,6 +28,7 @@ import {
   status,
 } from "@/lib/catalog";
 import { CatalogFilters } from "./catalog-filters";
+import { OfficialSearch } from "./official-search";
 import { OpportunityCard } from "./opportunity-card";
 import { RadarDialog, type Modal } from "./radar-dialog";
 import { RadarHero } from "./radar-hero";
@@ -39,6 +40,7 @@ const tabs = [
   { id: "opportunities", label: "Oportunidades", icon: ListFilter },
   { id: "favorites", label: "Favoritos", icon: Bookmark },
   { id: "history", label: "Histórico", icon: History },
+  { id: "official", label: "Busca oficial", icon: Search },
 ] as const;
 type Tab = (typeof tabs)[number]["id"];
 
@@ -207,11 +209,13 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             </button>
           ))}
           <span className="review">
-            <span></span> Fontes consultadas em {reviewDate}
+            <span></span> Catálogo conferido em {reviewDate}
           </span>
         </nav>
 
-        {tab === "history" ? (
+        {tab === "official" ? (
+          <OfficialSearch currentMonth={today.slice(0, 7)} />
+        ) : tab === "history" ? (
           <section className="main-section">
             <div className="section-heading">
               <div>
