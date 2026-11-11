@@ -27,6 +27,7 @@ type Notice = {
   org: string;
   title: string;
   source: NoticeSource;
+  requirementsSource?: NoticeSource;
   amendments?: Record<string, Amendment>;
 };
 
@@ -96,6 +97,10 @@ export const notices = {
       label: "Edital retificado",
       url: "https://servicos.ufrrj.br/concursos/editais/EDITAL52-2026-TAE_SUPERIOR_retificado_.pdf",
     },
+    requirementsSource: {
+      label: "Requisitos e atribuições dos cargos",
+      url: "https://servicos.ufrrj.br/concursos/editais/atribuicao_dos_cargos_2026.pdf",
+    },
     amendments: {
       "pagamento-18-09": {
         date: "2026-09-18",
@@ -115,6 +120,18 @@ export const notices = {
           },
         ],
       },
+    },
+  },
+  "ufrrj-53-2026": {
+    org: "UFRRJ",
+    title: "Edital nº 53/2026",
+    source: {
+      label: "Edital retificado em 06/11/2026",
+      url: "https://servicos.ufrrj.br/concursos/editais/edital53-2026retificado3.pdf",
+    },
+    requirementsSource: {
+      label: "Requisitos e atribuições dos cargos",
+      url: "https://servicos.ufrrj.br/concursos/editais/atribuicao_dos_cargos_53_2026.pdf",
     },
   },
   "dataprev-2026": {

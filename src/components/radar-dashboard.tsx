@@ -23,6 +23,7 @@ import {
   coveredStateCount,
   filterOpportunities,
   initialFilters,
+  professionalAreaOptions,
   matchingLocations,
   localDateTime,
   status,
@@ -166,7 +167,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             </span>
             <div>
               <strong>{String(opportunities.length).padStart(2, "0")}</strong>
-              <span>Oportunidades catalogadas</span>
+              <span>Cargos em {professionalAreaOptions.length} áreas</span>
             </div>
           </div>
           <button
@@ -213,7 +214,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             </button>
           ))}
           <span className="review">
-            <span></span> Catálogo conferido em {reviewDate}
+            <span></span> Catálogo atualizado em {reviewDate}
           </span>
         </nav>
 
@@ -277,6 +278,27 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 <span className="count">{selected.length}</span>
               </button>
             </div>
+            {tab === "opportunities" && (
+              <div className="catalog-coverage">
+                <div>
+                  <strong>
+                    Explore as {professionalAreaOptions.length} áreas do
+                    catálogo
+                  </strong>
+                  <p>
+                    Cargos de nível médio, técnico e superior. A cobertura ainda
+                    é parcial. As publicações coletadas aguardam conferência
+                    antes de entrar nesta lista.
+                  </p>
+                </div>
+                <button
+                  className="outline"
+                  onClick={() => navigate("official")}
+                >
+                  Ver novas publicações <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
             <CatalogFilters filters={filters} onChange={setFilter} />
             <div className="result-bar">
               <div aria-live="polite">

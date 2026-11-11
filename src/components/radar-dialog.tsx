@@ -40,6 +40,8 @@ export function RadarDialog({
   onClose,
 }: RadarDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const detailNotice =
+    modal?.type === "details" ? getNotice(modal.item.noticeId) : null;
 
   useEffect(() => {
     if (modal && !dialog.current?.open) dialog.current?.showModal();
@@ -119,7 +121,7 @@ export function RadarDialog({
                   experiência. Informações faltantes aparecem sinalizadas.
                 </li>
                 <li>
-                  A curadoria foi conferida em {reviewDate}. As datas alteram a
+                  O catálogo foi atualizado em {reviewDate}. As datas alteram a
                   situação das inscrições no painel, e novas publicações
                   oficiais precisam de revisão da curadoria.
                 </li>
@@ -169,6 +171,18 @@ export function RadarDialog({
                 {getNotice(modal.item.noticeId).source.label}{" "}
                 <ExternalLink size={16} />
               </a>
+              {detailNotice?.requirementsSource && (
+                <div className="official-source-links">
+                  <a
+                    href={detailNotice.requirementsSource.url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {detailNotice.requirementsSource.label}{" "}
+                    <ArrowUpRight size={14} />
+                  </a>
+                </div>
+              )}
               <div className="dialog-history">
                 <h3>
                   <History size={18} /> Histórico do cargo

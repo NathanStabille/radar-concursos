@@ -25,6 +25,10 @@ Abra [http://localhost:3000](http://localhost:3000). Use `npm run typecheck` par
 
 ## Atualizar o catálogo
 
+O catálogo inicial reúne cargos de Administração, Ciências Agrárias, Ciências e Laboratório, Comunicação, Contabilidade, Direito, Educação, Engenharia, Saúde e Tecnologia da Informação. Há requisitos de nível médio, técnico e superior; não existe filtro obrigatório por ADS. Os números por área no painel são calculados a partir dos cargos cadastrados.
+
+O monitoramento diário coleta publicações, mas não extrai nem cadastra automaticamente os cargos. Seus resultados ficam em **Busca oficial → Monitoramento de fontes** até a conferência dos requisitos e prazos. O catálogo é parcial e pode incluir concursos com inscrições encerradas; use o filtro de situação para selecionar inscrições abertas.
+
 Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Mantenha o `id` dos cargos existentes para preservar os favoritos e use datas no formato `AAAA-MM-DD`. Use `professionalArea` para a categoria ampla (como Saúde) e `specialty` para a especialidade (como Fonoaudiologia). Registre formação e habilitação em `requirement`. Atualize `reviewDate` com a data da conferência.
 
 Use `locations` para listar as UFs e municípios de lotação. Informe os códigos do [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) em `municipality.id`. Se o edital definir somente a UF, omita o município. Marque lotações possíveis com `tentative` e localidades que oferecem apenas cadastro de reserva com `reserveOnly`. Registre locais de prova separadamente em `examLocation`.

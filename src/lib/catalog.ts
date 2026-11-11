@@ -76,6 +76,14 @@ export function options(
   return [...new Set(values)].sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
+export const professionalAreaOptions = options("professionalArea").map(
+  (name) => ({
+    name,
+    count: opportunities.filter((item) => item.professionalArea === name)
+      .length,
+  }),
+);
+
 export const stateOptions = Object.entries(stateNames).sort(([, a], [, b]) =>
   a.localeCompare(b, "pt-BR"),
 );

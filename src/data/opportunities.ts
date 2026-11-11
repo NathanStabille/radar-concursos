@@ -1,7 +1,7 @@
 import { municipalities, type WorkLocation } from "./locations";
 import { getNotice, type NoticeId } from "./notices";
 
-export const reviewDate = "10/11/2026";
+export const reviewDate = "11/11/2026";
 
 type OpportunityEntry = {
   id: string;
@@ -95,6 +95,19 @@ const ruralTechnology = {
   eligibility: "Superior na área de TI",
 };
 
+const ruralTechnical = {
+  ...ruralBase,
+  noticeId: "ufrrj-53-2026" as const,
+  salary: 3181.39,
+  salaryLabel: "Vencimento-base · 40 h/semana",
+  start: "2026-09-14",
+  startHour: "10:00",
+  end: "2026-10-13",
+  endHour: "17:00",
+};
+const laboratoryRequirement =
+  "Ensino médio profissionalizante ou ensino médio completo com curso técnico na área do cargo, conforme o Quadro 1 do edital.";
+
 const dataprevBase = {
   professionalArea: technology,
   noticeId: "dataprev-2026" as const,
@@ -186,6 +199,110 @@ const entries: OpportunityEntry[] = [
     eligibility: "Graduação em Ciências Contábeis e CRC",
   },
   {
+    ...cremerjBase,
+    id: "cremerj-advogado",
+    role: "Advogado",
+    professionalArea: "Direito",
+    specialty: "Advocacia",
+    salary: 7718.45,
+    salaryLabel: "Vencimento-base · 30 h/semana",
+    requirement:
+      "Bacharelado em Direito, OAB ativa e pelo menos um ano de experiência comprovada em advocacia.",
+    eligibility: "Direito, OAB e experiência",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-analista-contabil",
+    role: "Analista Contábil",
+    professionalArea: "Contabilidade",
+    specialty: "Ciências Contábeis",
+    locations: [{ ...municipalities.rio, reserveOnly: true }],
+    salary: 6084.46,
+    requirement: "Graduação em Ciências Contábeis e CRC ativo e válido.",
+    eligibility: "Ciências Contábeis e CRC",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-recursos-humanos",
+    role: "Analista de Recursos Humanos",
+    professionalArea: "Administração",
+    specialty: "Recursos Humanos",
+    salary: 6084.46,
+    requirement:
+      "Graduação em Administração, Psicologia, Gestão de Recursos Humanos ou Gestão de Pessoas, com registro ativo no conselho pertinente.",
+    eligibility: "Superior nas formações previstas e registro profissional",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-financeiro",
+    role: "Analista Financeiro",
+    professionalArea: "Administração",
+    specialty: "Finanças",
+    salary: 6084.46,
+    requirement:
+      "Bacharelado em Administração, Ciências Econômicas, Ciências Contábeis ou Direito.",
+    eligibility: "Bacharelado nas formações previstas",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-juridico",
+    role: "Analista Jurídico",
+    professionalArea: "Direito",
+    specialty: "Análise jurídica",
+    locations: [{ ...municipalities.rio, reserveOnly: true }],
+    salary: 6084.46,
+    requirement: "Bacharelado em Direito.",
+    eligibility: "Bacharelado em Direito",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-auditor",
+    role: "Auditor",
+    professionalArea: "Contabilidade",
+    specialty: "Auditoria",
+    salary: 18000,
+    requirement:
+      "Bacharelado em Ciências Contábeis, Administração, Direito, Economia ou Engenharia.",
+    eligibility: "Bacharelado nas formações previstas",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-jornalista",
+    role: "Jornalista",
+    professionalArea: "Comunicação",
+    specialty: "Jornalismo",
+    locations: [{ ...municipalities.rio, reserveOnly: true }],
+    salary: 5824.19,
+    salaryLabel: "Vencimento-base · 30 h/semana",
+    requirement:
+      "Graduação em Comunicação Social com habilitação em Jornalismo e registro profissional ativo.",
+    eligibility: "Jornalismo e registro profissional",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-audiovisual",
+    role: "Analista de Comunicação Audiovisual",
+    professionalArea: "Comunicação",
+    specialty: "Audiovisual",
+    locations: [{ ...municipalities.rio, reserveOnly: true }],
+    salary: 6084.46,
+    requirement:
+      "Graduação em Cinema, Produção Audiovisual ou Comunicação Social; nesta última, habilitação em Audiovisual, Cinema, Rádio e TV ou Produção Multimídia.",
+    eligibility: "Superior nas formações previstas",
+  },
+  {
+    ...cremerjBase,
+    id: "cremerj-assistente-operacoes",
+    role: "Assistente de Operações",
+    professionalArea: "Administração",
+    specialty: "Apoio administrativo",
+    locations: [{ ...municipalities.rio, reserveOnly: true }],
+    salary: 3010,
+    salaryLabel: "Vencimento-base · 180 h/mês",
+    requirement: "Ensino médio completo.",
+    eligibility: "Ensino médio completo",
+  },
+  {
     id: "seplag-apo-ti",
     noticeId: "seplag-rj-2026" as const,
     role: "Analista de Planejamento e Orçamento · TI",
@@ -229,6 +346,104 @@ const entries: OpportunityEntry[] = [
     requirement:
       "Curso superior em Fonoaudiologia e registro no conselho profissional competente, conforme o Anexo I.",
     eligibility: "Graduação em Fonoaudiologia e registro profissional",
+  },
+  {
+    ...ruralBase,
+    id: "ufrrj-engenheiro-seguranca",
+    role: "Engenheiro de Segurança do Trabalho",
+    professionalArea: "Engenharia",
+    specialty: "Segurança do Trabalho",
+    salaryLabel: "Vencimento-base · 40 h/semana",
+    requirement:
+      "Graduação em Engenharia ou Arquitetura, especialização em Segurança do Trabalho e registro profissional, conforme o edital.",
+    eligibility: "Engenharia ou Arquitetura e especialização",
+  },
+  {
+    ...ruralBase,
+    id: "ufrrj-medico-clinico",
+    role: "Médico · Clínico Geral",
+    professionalArea: "Saúde",
+    specialty: "Clínica Geral",
+    salaryLabel: "Vencimento-base · 20 h/semana",
+    requirement: "Graduação em Medicina e registro profissional.",
+    eligibility: "Medicina e registro profissional",
+  },
+  {
+    ...ruralBase,
+    id: "ufrrj-medico-psiquiatra",
+    role: "Médico · Psiquiatra",
+    professionalArea: "Saúde",
+    specialty: "Psiquiatria",
+    salaryLabel: "Vencimento-base · 20 h/semana",
+    requirement:
+      "Graduação em Medicina, residência médica, especialização ou título de especialista em Psiquiatria nas condições do Anexo 1, e registro profissional.",
+    eligibility: "Medicina, especialização e registro profissional",
+  },
+  {
+    ...ruralBase,
+    id: "ufrrj-veterinario",
+    role: "Médico Veterinário · Cirurgia de Pequenos Animais",
+    professionalArea: "Ciências Agrárias",
+    specialty: "Medicina Veterinária",
+    salaryLabel: "Vencimento-base · 20 h/semana",
+    requirement: "Graduação em Medicina Veterinária e registro profissional.",
+    eligibility: "Medicina Veterinária e registro profissional",
+  },
+  {
+    ...ruralBase,
+    id: "ufrrj-zootecnista",
+    role: "Zootecnista",
+    professionalArea: "Ciências Agrárias",
+    specialty: "Zootecnia",
+    salaryLabel: "Vencimento-base · 40 h/semana",
+    requirement: "Graduação em Zootecnia e registro profissional.",
+    eligibility: "Zootecnia e registro profissional",
+  },
+  {
+    ...ruralTechnical,
+    id: "ufrrj-assistente-aluno",
+    role: "Assistente de Aluno",
+    professionalArea: "Educação",
+    specialty: "Apoio estudantil",
+    salary: 2607.7,
+    requirement: "Ensino médio completo.",
+    eligibility: "Ensino médio completo",
+  },
+  {
+    ...ruralTechnical,
+    id: "ufrrj-laboratorio-biologia",
+    role: "Técnico de Laboratório · Biologia/Necropsia",
+    professionalArea: "Ciências e Laboratório",
+    specialty: "Biologia e Necropsia",
+    requirement: laboratoryRequirement,
+    eligibility: "Ensino médio profissionalizante ou formação técnica na área",
+  },
+  {
+    ...ruralTechnical,
+    id: "ufrrj-laboratorio-materiais",
+    role: "Técnico de Laboratório · Engenharia de Materiais",
+    professionalArea: "Engenharia",
+    specialty: "Materiais",
+    requirement: laboratoryRequirement,
+    eligibility: "Ensino médio profissionalizante ou formação técnica na área",
+  },
+  {
+    ...ruralTechnical,
+    id: "ufrrj-laboratorio-quimica",
+    role: "Técnico de Laboratório · Química/Alimentos",
+    professionalArea: "Ciências e Laboratório",
+    specialty: "Química e Alimentos",
+    requirement: laboratoryRequirement,
+    eligibility: "Ensino médio profissionalizante ou formação técnica na área",
+  },
+  {
+    ...ruralTechnical,
+    id: "ufrrj-laboratorio-solos",
+    role: "Técnico de Laboratório · Solos",
+    professionalArea: "Ciências Agrárias",
+    specialty: "Solos",
+    requirement: laboratoryRequirement,
+    eligibility: "Ensino médio profissionalizante ou formação técnica na área",
   },
   {
     ...dataprevBase,

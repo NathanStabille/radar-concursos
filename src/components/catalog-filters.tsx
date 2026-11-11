@@ -1,6 +1,7 @@
 import { ChevronDown, Search } from "lucide-react";
 import {
   initialFilters,
+  professionalAreaOptions,
   municipalityOptions,
   options,
   stateOptions,
@@ -34,7 +35,11 @@ const filterDefinitions: {
     key: "professionalArea",
     label: "Área profissional",
     placeholder: "Todas as áreas",
-    values: () => options("professionalArea").map((area) => [area, area]),
+    values: () =>
+      professionalAreaOptions.map(({ name, count }) => [
+        name,
+        `${name} (${count})`,
+      ]),
   },
   {
     key: "specialty",
