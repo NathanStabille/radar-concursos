@@ -47,7 +47,7 @@ A API interna `GET /api/official-notices?q=concurso&month=2026-11` consulta o í
 
 O monitoramento consulta o Diário Oficial do RJ, a UFRRJ e a Prefeitura de Praia Grande. Registra o horário de cada tentativa e guarda a última leitura bem-sucedida, inclusive quando a fonte falha. As publicações continuam pendentes de revisão e o DOU segue com consulta externa.
 
-1. Conecte uma instância do **Upstash Redis** ao projeto de produção na Vercel. Confirme as variáveis `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN`. Se a integração usar outros nomes, copie os valores da aba REST do Upstash para essas variáveis.
+1. Conecte uma instância do **Upstash Redis** ao projeto de produção na Vercel. O código usa `KV_REST_API_URL` e `KV_REST_API_TOKEN`, criadas automaticamente pela integração. Confirme que ambas estão disponíveis em **Production**. Use o token com permissão de escrita; `KV_REST_API_READ_ONLY_TOKEN` não permite registrar as consultas. Não é necessário duplicar as credenciais com outros nomes nem instalar um SDK.
 2. Defina `CRON_SECRET` em produção com um segredo aleatório (por exemplo, gere-o com `openssl rand -hex 32`). Guarde as credenciais apenas no ambiente da Vercel ou no seu `.env.local`.
 3. Faça um novo deploy de produção e confira **Schedules → Cron Jobs**. O `vercel.json` agenda `/api/cron/official-sources` diariamente às 15h UTC, na janela das 12h em Brasília.
 4. Após a primeira execução, abra **Busca oficial → Monitoramento de fontes** para ver a situação. A rota pública `GET /api/official-sources` lê o registro. A atualização exige o cabeçalho `Authorization: Bearer <CRON_SECRET>`.
