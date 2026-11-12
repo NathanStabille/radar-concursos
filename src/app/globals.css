@@ -7,7 +7,7 @@
   --line: #dfe5d8;
   --accent: #dceca9;
   --accent-ink: #29431c;
-  --green: #34582a;
+  --brand: #34582a;
   --wash: #eef3e7;
   --input: #f8faf5;
   --hover: #f0f5e9;
@@ -38,40 +38,40 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #131a15;
-  --white: #1c251e;
-  --ink: #e1e9db;
-  --muted: #a8b6a2;
-  --line: #354332;
-  --accent: #c5df95;
-  --accent-ink: #203018;
-  --green: #bbd99c;
-  --wash: #283525;
-  --input: #172019;
-  --hover: #293828;
-  --focus: #bddc94;
-  --button: #c5df95;
-  --button-ink: #203018;
-  --hero: #253421;
-  --hero-line: #405534;
-  --hero-title: #e2edcf;
-  --hero-text: #b5c6a6;
-  --radar: #aac47d;
-  --status-neutral-bg: #2e3a2e;
-  --status-neutral-ink: #c2cdbb;
-  --status-green-bg: #2b4026;
-  --status-green-ink: #c4dfa4;
-  --status-amber-bg: #403522;
-  --status-amber-ink: #e5c58b;
-  --status-blue-bg: #26384a;
-  --status-blue-ink: #b3cee8;
-  --status-purple-bg: #383044;
-  --status-purple-ink: #d0bfe7;
-  --tray: #263624;
-  --tray-ink: #e1e9db;
-  --tray-line: #526548;
+  --paper: #111113;
+  --white: #1c1c1f;
+  --ink: #f4f4f5;
+  --muted: #a1a1aa;
+  --line: #343438;
+  --accent: #93c5fd;
+  --accent-ink: #102a43;
+  --brand: #93c5fd;
+  --wash: #24272d;
+  --input: #161619;
+  --hover: #28282d;
+  --focus: #93c5fd;
+  --button: #2563eb;
+  --button-ink: #ffffff;
+  --hero: #1e2128;
+  --hero-line: #363b46;
+  --hero-title: #f4f4f5;
+  --hero-text: #b6beca;
+  --radar: #7e9abb;
+  --status-neutral-bg: #2a2a30;
+  --status-neutral-ink: #c4c4cc;
+  --status-green-bg: #18372a;
+  --status-green-ink: #86d6a6;
+  --status-amber-bg: #3a2e1c;
+  --status-amber-ink: #edc785;
+  --status-blue-bg: #1e304b;
+  --status-blue-ink: #a9cbf6;
+  --status-purple-bg: #30243e;
+  --status-purple-ink: #d2b8f2;
+  --tray: #202023;
+  --tray-ink: #f4f4f5;
+  --tray-line: #414147;
   --shadow: #00000050;
-  --backdrop: #060c08b8;
+  --backdrop: #000000b8;
 }
 
 * {
@@ -227,7 +227,7 @@ input[type="checkbox"] {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--white);
-  color: var(--green);
+  color: var(--brand);
 }
 .icon-button:hover,
 .icon-button.marked {
@@ -265,7 +265,7 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--green);
+  color: var(--brand);
   font:
     700 11px/1.5 ui-monospace,
     SFMono-Regular,
@@ -282,7 +282,7 @@ input[type="checkbox"] {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--brand);
 }
 .signal {
   box-shadow: 0 0 0 4px var(--wash);
@@ -297,7 +297,7 @@ input[type="checkbox"] {
   line-height: 1.1;
 }
 .hero h1 span {
-  color: var(--green);
+  color: var(--brand);
 }
 .hero p {
   max-width: 440px;
@@ -360,7 +360,7 @@ button.summary-item:hover {
   height: 40px;
   border-radius: 10px;
   background: var(--wash);
-  color: var(--green);
+  color: var(--brand);
 }
 .summary-icon.green {
   background: var(--status-green-bg);
@@ -411,14 +411,14 @@ button.summary-item:hover {
 }
 .nav button:hover,
 .nav button.active {
-  color: var(--green);
+  color: var(--brand);
 }
 .nav button.active {
-  border-bottom-color: var(--green);
+  border-bottom-color: var(--brand);
 }
 .count {
   background: var(--wash);
-  color: var(--green);
+  color: var(--brand);
   border-radius: 5px;
   padding: 1px 5px;
   min-width: 20px;
@@ -604,7 +604,7 @@ h2 {
   padding: 2px;
   border: 0;
   background: none;
-  color: var(--green);
+  color: var(--brand);
   font-size: 12px;
   text-decoration: underline;
 }
@@ -628,8 +628,8 @@ h2 {
   border-color: var(--focus);
 }
 .record.is-selected {
-  border-color: var(--green);
-  box-shadow: 0 0 0 1px var(--green);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand);
 }
 .record-heading {
   display: flex;
@@ -645,7 +645,7 @@ h2 {
   height: 33px;
   border-radius: 9px;
   background: var(--wash);
-  color: var(--green);
+  color: var(--brand);
 }
 .org {
   min-width: 0;
@@ -673,7 +673,7 @@ h2 {
   padding: 3px 7px;
   border-radius: 5px;
   background: var(--wash);
-  color: var(--green);
+  color: var(--brand);
   font-size: 11px;
   font-weight: 600;
 }
@@ -692,7 +692,7 @@ h2 {
   text-align: left;
 }
 .record h3 button:hover {
-  color: var(--green);
+  color: var(--brand);
   text-decoration: underline;
 }
 .record-location {
@@ -980,12 +980,12 @@ dd {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--green);
+  background: var(--brand);
   border: 2px solid var(--white);
   box-shadow: 0 0 0 1px var(--line);
 }
 .change-date {
-  color: var(--green);
+  color: var(--brand);
   font:
     600 11px ui-monospace,
     monospace;
@@ -1010,7 +1010,7 @@ dd {
 table a,
 .official-source-links a,
 .official-result a {
-  color: var(--green);
+  color: var(--brand);
   font-size: 12px;
   font-weight: 600;
 }
@@ -1141,7 +1141,7 @@ th {
 }
 th small {
   display: block;
-  color: var(--green);
+  color: var(--brand);
   font-size: 11px;
   margin-bottom: 4px;
 }
