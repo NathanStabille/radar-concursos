@@ -1,9 +1,8 @@
+import type { CatalogFacets } from "@/types/catalog";
 import { ChevronDown, Search } from "lucide-react";
 import {
   initialFilters,
-  professionalAreaOptions,
   municipalityOptions,
-  options,
   stateOptions,
   statusNames,
 } from "@/lib/catalog";
@@ -16,7 +15,7 @@ const filterDefinitions: {
   key: SelectFilter;
   label: string;
   placeholder: string;
-  values: (filters: Filters) => FilterOption[];
+  values: (filters: Filters, facets: CatalogFacets) => FilterOption[];
 }[] = [
   {
     key: "state",
@@ -29,27 +28,34 @@ const filterDefinitions: {
     key: "municipality",
     label: "Município de lotação",
     placeholder: "Todos os municípios",
-    values: (filters) => municipalityOptions(filters.state),
+    values: (filters, facets) =>
+      municipalityOptions(facets.municipalities, filters.state),
   },
   {
     key: "professionalArea",
     label: "Área profissional",
     placeholder: "Todas as áreas",
-    values: () =>
-      professionalAreaOptions.map(({ name, count }) => [
-        name,
-        `${name} (${count})`,
-      ]),
+    values: (_filters, facets) =>
+      facets.areas.map(({ name, count }) => [name, `${name} (${count})`]),
   },
   {
     key: "specialty",
     label: "Especialidade",
     placeholder: "Todas as especialidades",
-    values: (filters) =>
-      options("specialty", filters.professionalArea).map((specialty) => [
-        specialty,
-        specialty,
-      ]),
+    values: (filters, facets) =>
+      [
+        ...new Set(
+          facets.specialties
+            .filter(
+              (item) =>
+                !filters.professionalArea ||
+                item.area === filters.professionalArea,
+            )
+            .map((item) => item.name),
+        ),
+      ]
+        .sort((a, b) => a.localeCompare(b, "pt-BR"))
+        .map((name) => [name, name]),
   },
   {
     key: "salary",
@@ -72,10 +78,15 @@ const filterDefinitions: {
 
 type CatalogFiltersProps = {
   filters: Filters;
+  facets: CatalogFacets;
   onChange: (key: keyof Filters, value: string) => void;
 };
 
-export function CatalogFilters({ filters, onChange }: CatalogFiltersProps) {
+export function CatalogFilters({
+  filters,
+  facets,
+  onChange,
+}: CatalogFiltersProps) {
   return (
     <div className="filter-panel">
       <label className="search">
@@ -83,6 +94,7 @@ export function CatalogFilters({ filters, onChange }: CatalogFiltersProps) {
         <span className="sr-only">Buscar oportunidades</span>
         <input
           value={filters.search}
+          maxLength={100}
           onChange={(event) => onChange("search", event.target.value)}
           placeholder="Buscar cargo, órgão, município ou palavra-chave"
         />
@@ -97,7 +109,7 @@ export function CatalogFilters({ filters, onChange }: CatalogFiltersProps) {
                 onChange={(event) => onChange(key, event.target.value)}
               >
                 <option value="">{placeholder}</option>
-                {values(filters).map(([value, name]) => (
+                {values(filters, facets).map(([value, name]) => (
                   <option key={value} value={value}>
                     {name}
                   </option>

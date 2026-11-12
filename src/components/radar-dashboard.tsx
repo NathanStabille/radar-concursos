@@ -17,19 +17,21 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { changeCategories, type ChangeCategory } from "@/data/notices";
-import { opportunities, reviewDate } from "@/data/opportunities";
 import {
-  coveredStateCount,
-  filterOpportunities,
+  changeCategories,
+  type ChangeCategory,
+  type Opportunity,
+  type CatalogResponse,
+  type CatalogFacets,
+} from "@/types/catalog";
+import {
   initialFilters,
-  professionalAreaOptions,
+  date,
   matchingLocations,
   localDateTime,
-  status,
 } from "@/lib/catalog";
-import { paginate } from "@/lib/pagination";
-import { amendmentCount, getAmendmentHistory } from "@/lib/amendments";
+import type { CatalogRequest } from "@/lib/catalog-db/request";
+import { useCatalog } from "@/hooks/use-catalog";
 import { CatalogFilters } from "./catalog-filters";
 import { OfficialSearch } from "./official-search";
 import { OpportunityCard } from "./opportunity-card";
@@ -38,7 +40,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { RadarDialog, type Modal } from "./radar-dialog";
 import { RadarHero } from "./radar-hero";
 import { SourceMonitor } from "./source-monitor";
-import { Timeline } from "./timeline";
+import { CatalogHistory } from "./catalog-history";
 
 const favoritesKey = "radar-ads-favorites-v1";
 
@@ -50,20 +52,55 @@ const tabs = [
 ] as const;
 type Tab = (typeof tabs)[number]["id"];
 
-export function RadarDashboard({ initialTime }: { initialTime: string }) {
+const emptyFacets: CatalogFacets = {
+  areas: [],
+  specialties: [],
+  municipalities: [],
+};
+const emptyPage = {
+  items: [] as Opportunity[],
+  page: 1,
+  totalPages: 1,
+  first: 0,
+  last: 0,
+  total: 0,
+};
+export function RadarDashboard({
+  initialTime,
+  initialCatalog,
+}: {
+  initialTime: string;
+  initialCatalog: CatalogResponse | null;
+}) {
   const [tab, setTab] = useState<Tab>("opportunities");
   const [filters, setFilters] = useState(initialFilters);
-  const [sort, setSort] = useState("recent");
+  const [sort, setSort] = useState<CatalogRequest["sort"]>("recent");
   const [page, setPage] = useState(1);
   const catalogSection = useRef<HTMLElement>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<Opportunity[]>([]);
   const [modal, setModal] = useState<Modal | null>(null);
   const [today, setToday] = useState(initialTime);
   const [notice, setNotice] = useState("");
   const [historyCategory, setHistoryCategory] = useState<ChangeCategory | "">(
     "",
   );
+
+  const catalog = useCatalog(
+    { filters, sort, page, ids: tab === "favorites" ? favorites : undefined },
+    today,
+    initialCatalog,
+  );
+  const summary = catalog.data?.summary;
+  const facets = catalog.data?.facets ?? emptyFacets;
+  const paginated = catalog.data ?? emptyPage;
+  const total = paginated.total;
+  const professionalAreaOptions = facets.areas;
+  const coveredStateCount = summary?.stateCount ?? 0;
+  const amendmentCount = summary?.amendmentCount ?? 0;
+  const openCount = summary?.open ?? 0;
+  const compared = selected;
+  const activeFilters = Object.values(filters).filter(Boolean).length;
 
   useEffect(() => {
     const updateDate = () => setToday(localDateTime());
@@ -75,7 +112,15 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
       );
       if (Array.isArray(saved))
         setFavorites(
-          saved.filter((id) => opportunities.some((item) => item.id === id)),
+          [
+            ...new Set(
+              saved.filter(
+                (id): id is string =>
+                  typeof id === "string" &&
+                  /^[a-z0-9][a-z0-9-]{0,99}$/.test(id),
+              ),
+            ),
+          ].slice(0, 200),
         );
     } catch {
       /* The site remains usable if storage is unavailable. */
@@ -84,14 +129,14 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   }, []);
 
   function toggleFavorite(id: string) {
+    if (!favorites.includes(id) && favorites.length >= 200) {
+      setNotice("Você pode salvar até 200 oportunidades neste navegador.");
+      return;
+    }
     const next = favorites.includes(id)
       ? favorites.filter((value) => value !== id)
       : [...favorites, id];
     setFavorites(next);
-    if (tab === "favorites") {
-      const remaining = filterOpportunities(filters, sort, today, next);
-      setPage((current) => paginate(remaining, current).page);
-    }
     try {
       localStorage.setItem(favoritesKey, JSON.stringify(next));
     } catch {
@@ -99,30 +144,13 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
     }
   }
 
-  function toggleCompare(id: string) {
+  function toggleCompare(item: Opportunity) {
     setNotice("");
-    if (selected.includes(id))
-      setSelected(selected.filter((value) => value !== id));
-    else if (selected.length < 3) setSelected([...selected, id]);
+    if (selected.some((value) => value.id === item.id))
+      setSelected(selected.filter((value) => value.id !== item.id));
+    else if (selected.length < 3) setSelected([...selected, item]);
     else setNotice("Você pode comparar até 3 oportunidades por vez.");
   }
-
-  const activeFilters = Object.values(filters).filter(Boolean).length;
-  const filtered = filterOpportunities(
-    filters,
-    sort,
-    today,
-    tab === "favorites" ? favorites : undefined,
-  );
-
-  const paginated = paginate(filtered, page);
-
-  const openCount = opportunities.filter(
-    (item) => status(item, today) === "open",
-  ).length;
-  const compared = selected.flatMap((id) =>
-    opportunities.filter((item) => item.id === id),
-  );
 
   function setFilter(key: keyof typeof initialFilters, value: string) {
     setPage(1);
@@ -146,7 +174,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   }
 
   function changePage(next: number) {
-    setPage(paginate(filtered, next).page);
+    setPage(next);
     catalogSection.current?.scrollIntoView({ block: "start" });
   }
 
@@ -168,8 +196,11 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             </span>
           </button>
           <div className="top-region">
-            <MapPin size={15} /> Catálogo inicial · {coveredStateCount} UFs com
-            registros
+            <MapPin size={15} />{" "}
+            {catalog.data?.source === "initial"
+              ? "Catálogo inicial"
+              : "Catálogo"}{" "}
+            · {summary ? coveredStateCount : "—"} UFs com registros
           </div>
           <div className="top-actions">
             <ThemeToggle />
@@ -193,7 +224,9 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
               <Building2 size={20} />
             </span>
             <div>
-              <strong>{String(opportunities.length).padStart(2, "0")}</strong>
+              <strong>
+                {summary ? String(summary.total).padStart(2, "0") : "—"}
+              </strong>
               <span>Cargos em {professionalAreaOptions.length} áreas</span>
             </div>
           </div>
@@ -241,7 +274,14 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             </button>
           ))}
           <span className="review">
-            <span></span> Catálogo atualizado em {reviewDate}
+            <span></span>{" "}
+            {catalog.data?.source === "initial"
+              ? "Catálogo inicial"
+              : "Catálogo"}{" "}
+            ·{" "}
+            {summary?.reviewedOn
+              ? `Revisão em ${date(summary.reviewedOn)}`
+              : "Data de revisão não informada"}
           </span>
         </nav>
 
@@ -276,11 +316,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
               </label>
             </div>
             <div className="history-panel">
-              <Timeline
-                entries={getAmendmentHistory({
-                  category: historyCategory || undefined,
-                })}
-              />
+              <CatalogHistory category={historyCategory} />
             </div>
           </section>
         ) : (
@@ -309,7 +345,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 <span className="count">{selected.length}</span>
               </button>
             </div>
-            {tab === "opportunities" && (
+            {tab === "opportunities" && professionalAreaOptions.length > 0 && (
               <div className="catalog-coverage">
                 <div>
                   <strong>
@@ -330,14 +366,20 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 </button>
               </div>
             )}
-            <CatalogFilters filters={filters} onChange={setFilter} />
+            <CatalogFilters
+              filters={filters}
+              facets={facets}
+              onChange={setFilter}
+            />
             <div className="result-bar">
               <div className="result-count" aria-live="polite">
-                <strong>{filtered.length}</strong>{" "}
-                {filtered.length === 1
+                <strong>
+                  {catalog.loading ? "…" : catalog.error ? "—" : total}
+                </strong>{" "}
+                {total === 1
                   ? "oportunidade encontrada"
                   : "oportunidades encontradas"}
-                {filtered.length > 0 && (
+                {!catalog.loading && !catalog.error && total > 0 && (
                   <span className="result-range">
                     Mostrando {paginated.first} a {paginated.last}
                   </span>
@@ -354,7 +396,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 <select
                   value={sort}
                   onChange={(event) => {
-                    setSort(event.target.value);
+                    setSort(event.target.value as CatalogRequest["sort"]);
                     setPage(1);
                   }}
                 >
@@ -364,7 +406,18 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 </select>
               </label>
             </div>
-            {filtered.length ? (
+            {catalog.loading ? (
+              <div className="catalog-feedback" role="status">
+                Carregando oportunidades…
+              </div>
+            ) : catalog.error ? (
+              <div className="catalog-feedback" role="alert">
+                <p>{catalog.error}</p>
+                <button className="outline" onClick={catalog.refresh}>
+                  Tentar novamente
+                </button>
+              </div>
+            ) : total ? (
               <>
                 <div className="results">
                   {paginated.items.map((item) => (
@@ -374,10 +427,12 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                       locations={matchingLocations(item.locations, filters)}
                       today={today}
                       isSaved={favorites.includes(item.id)}
-                      isSelected={selected.includes(item.id)}
+                      isSelected={selected.some(
+                        (value) => value.id === item.id,
+                      )}
                       onDetails={() => setModal({ type: "details", item })}
                       onFavorite={() => toggleFavorite(item.id)}
-                      onCompare={() => toggleCompare(item.id)}
+                      onCompare={() => toggleCompare(item)}
                     />
                   ))}
                 </div>
@@ -469,6 +524,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
         modal={modal}
         compared={compared}
         today={today}
+        reviewedOn={summary?.reviewedOn ?? null}
         onClose={() => setModal(null)}
       />
     </>

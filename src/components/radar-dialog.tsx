@@ -9,10 +9,10 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { getNotice } from "@/data/notices";
-import { reviewDate, type Opportunity } from "@/data/opportunities";
+import type { Opportunity } from "@/types/catalog";
 import {
   currency,
+  date,
   locationLabel,
   period,
   status,
@@ -30,6 +30,7 @@ type RadarDialogProps = {
   modal: Modal | null;
   compared: Opportunity[];
   today: string;
+  reviewedOn: string | null;
   onClose: () => void;
 };
 
@@ -37,11 +38,11 @@ export function RadarDialog({
   modal,
   compared,
   today,
+  reviewedOn,
   onClose,
 }: RadarDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const detailNotice =
-    modal?.type === "details" ? getNotice(modal.item.noticeId) : null;
+  const detailNotice = modal?.type === "details" ? modal.item.notice : null;
 
   useEffect(() => {
     if (modal && !dialog.current?.open) dialog.current?.showModal();
@@ -121,9 +122,10 @@ export function RadarDialog({
                   experiência. Informações faltantes aparecem sinalizadas.
                 </li>
                 <li>
-                  O catálogo foi atualizado em {reviewDate}. As datas alteram a
-                  situação das inscrições no painel, e novas publicações
-                  oficiais precisam de revisão da curadoria.
+                  O catálogo foi atualizado em{" "}
+                  {reviewedOn ? date(reviewedOn) : "data não informada"}. As
+                  datas alteram a situação das inscrições no painel, e novas
+                  publicações oficiais precisam de revisão da curadoria.
                 </li>
               </ul>
             </>
@@ -164,12 +166,11 @@ export function RadarDialog({
               )}
               <a
                 className="primary"
-                href={getNotice(modal.item.noticeId).source.url}
+                href={modal.item.notice.source.url}
                 target="_blank"
                 rel="noreferrer"
               >
-                {getNotice(modal.item.noticeId).source.label}{" "}
-                <ExternalLink size={16} />
+                {modal.item.notice.source.label} <ExternalLink size={16} />
               </a>
               {detailNotice?.requirementsSource && (
                 <div className="official-source-links">
@@ -188,10 +189,13 @@ export function RadarDialog({
                   <History size={18} /> Histórico do cargo
                 </h3>
                 <Timeline
-                  entries={getAmendmentHistory({
-                    noticeId: modal.item.noticeId,
-                    opportunityId: modal.item.id,
-                  })}
+                  entries={getAmendmentHistory(
+                    { [modal.item.noticeId]: modal.item.notice },
+                    {
+                      noticeId: modal.item.noticeId,
+                      opportunityId: modal.item.id,
+                    },
+                  )}
                 />
               </div>
             </>
@@ -242,7 +246,7 @@ export function RadarDialog({
                       {compared.map((item) => (
                         <td key={item.id}>
                           <a
-                            href={getNotice(item.noticeId).source.url}
+                            href={item.notice.source.url}
                             target="_blank"
                             rel="noreferrer"
                           >

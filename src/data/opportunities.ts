@@ -1,31 +1,13 @@
 import { municipalities, type WorkLocation } from "./locations";
 import { getNotice, type NoticeId } from "./notices";
+import type {
+  Opportunity,
+  OpportunityEntry as CatalogEntry,
+} from "@/types/catalog";
+export type { Opportunity } from "@/types/catalog";
 
 export const reviewDate = "11/11/2026";
-
-type OpportunityEntry = {
-  id: string;
-  noticeId: NoticeId;
-  role: string;
-  kind: "Concurso público" | "Seleção simplificada";
-  professionalArea: string;
-  specialty: string;
-  locations: WorkLocation[];
-  examLocation?: string;
-  salary: number | null;
-  salaryLabel: string;
-  board: string;
-  requirement: string;
-  eligibility: string;
-  start?: string;
-  startHour?: string;
-  end?: string;
-  endHour?: string;
-  stage: "ongoing" | "closed" | "finished";
-  note?: string;
-};
-
-export type Opportunity = OpportunityEntry & { org: string };
+type OpportunityEntry = Omit<CatalogEntry, "noticeId"> & { noticeId: NoticeId };
 
 const capitalLocation = [municipalities.rio];
 const ruralLocations = [
@@ -514,4 +496,5 @@ const entries: OpportunityEntry[] = [
 export const opportunities: Opportunity[] = entries.map((item) => ({
   ...item,
   org: getNotice(item.noticeId).org,
+  notice: getNotice(item.noticeId),
 }));

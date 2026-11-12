@@ -1523,3 +1523,15 @@ footer span:first-child {
     scroll-behavior: auto !important;
   }
 }
+
+.catalog-feedback {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 36px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--muted);
+  text-align: center;
+}

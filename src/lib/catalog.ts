@@ -1,5 +1,5 @@
 import { stateNames, type WorkLocation } from "@/data/locations";
-import { opportunities, type Opportunity } from "@/data/opportunities";
+import type { Opportunity, CatalogFacets } from "@/types/catalog";
 
 export const currency = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -66,6 +66,7 @@ function normalize(value: string) {
 }
 
 export function options(
+  opportunities: Opportunity[],
   key: "professionalArea" | "specialty",
   professionalArea = "",
 ) {
@@ -76,31 +77,49 @@ export function options(
   return [...new Set(values)].sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
-export const professionalAreaOptions = options("professionalArea").map(
-  (name) => ({
-    name,
-    count: opportunities.filter((item) => item.professionalArea === name)
-      .length,
-  }),
-);
+export function createCatalogFacets(
+  opportunities: Opportunity[],
+): CatalogFacets {
+  const cities = new Map<string, CatalogFacets["municipalities"][number]>();
+  for (const item of opportunities)
+    for (const location of item.locations)
+      if (location.municipality) {
+        cities.set(String(location.municipality.id), {
+          ...location.municipality,
+          state: location.state,
+        });
+      }
+  return {
+    areas: options(opportunities, "professionalArea").map((name) => ({
+      name,
+      count: opportunities.filter((item) => item.professionalArea === name)
+        .length,
+    })),
+    specialties: [
+      ...new Map(
+        opportunities.map((item) => [
+          JSON.stringify([item.professionalArea, item.specialty]),
+          { area: item.professionalArea, name: item.specialty },
+        ]),
+      ).values(),
+    ],
+    municipalities: [...cities.values()].sort((a, b) =>
+      a.name.localeCompare(b.name, "pt-BR"),
+    ),
+  };
+}
 
 export const stateOptions = Object.entries(stateNames).sort(([, a], [, b]) =>
   a.localeCompare(b, "pt-BR"),
 );
 
-const workLocations = opportunities.flatMap((item) => item.locations);
-export const coveredStateCount = new Set(
-  workLocations.map(({ state }) => state),
-).size;
-
-export function municipalityOptions(state: string): [string, string][] {
-  const cities = new Map<string, string>();
-  for (const location of workLocations) {
-    if (location.municipality && (!state || location.state === state)) {
-      cities.set(String(location.municipality.id), municipalityLabel(location));
-    }
-  }
-  return [...cities].sort(([, a], [, b]) => a.localeCompare(b, "pt-BR"));
+export function municipalityOptions(
+  cities: CatalogFacets["municipalities"],
+  state: string,
+): [string, string][] {
+  return cities
+    .filter((city) => !state || city.state === state)
+    .map((city) => [String(city.id), `${city.name}/${city.state}`]);
 }
 
 export function matchingLocations(
@@ -144,6 +163,7 @@ export function locationSummary(locations: WorkLocation[]) {
 }
 
 export function filterOpportunities(
+  opportunities: Opportunity[],
   filters: typeof initialFilters,
   sort: string,
   today: string,
@@ -193,8 +213,12 @@ export function filterOpportunities(
       return item.salary >= 10000;
     })
     .sort((a, b) => {
-      if (sort === "salary") return (b.salary ?? -1) - (a.salary ?? -1);
-      if (sort === "org") return a.org.localeCompare(b.org, "pt-BR");
-      return (b.end ?? "").localeCompare(a.end ?? "");
+      const order =
+        sort === "salary"
+          ? (b.salary ?? -1) - (a.salary ?? -1)
+          : sort === "org"
+            ? a.org.localeCompare(b.org, "pt-BR")
+            : (b.end ?? "").localeCompare(a.end ?? "");
+      return order || a.id.localeCompare(b.id);
     });
 }

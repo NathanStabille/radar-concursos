@@ -1,74 +1,130 @@
 # Radar Concursos
 
-Painel em português de concursos públicos e seleções de diferentes áreas profissionais no Brasil, com cobertura inicial parcial.
+Portal em português de concursos públicos e seleções de diferentes áreas profissionais no Brasil. A cobertura ainda é parcial; os registros podem ter inscrições encerradas. Use os filtros e confira os documentos oficiais antes de se inscrever.
 
-## Rodar no VS Code
+## Desenvolvimento local
 
-Use Node.js 22 e npm. Abra a pasta do projeto e execute no terminal:
+Use Node.js 22 e npm:
 
 ```sh
 npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000). Use `npm run typecheck` para verificar o TypeScript e `npm run build` para compilar a versão de produção.
+Abra [localhost:3000](http://localhost:3000). Sem `DATABASE_URL`, o site usa os 35 cargos iniciais e sinaliza **Catálogo inicial**. Isso permite experimentar a interface sem configurar serviços externos.
 
-## Estrutura
+```sh
+npm run typecheck
+npm test
+npm run build
+```
 
-- `src/app/` contém a página, os metadados e o CSS.
-- `src/components/` contém o painel, os cartões, os detalhes, a comparação e o histórico.
-- `src/data/opportunities.ts` guarda os cargos e seus dados vigentes.
-- `src/data/notices.ts` guarda os editais, as fontes oficiais e as retificações.
-- `src/app/api/official-notices/` recebe as consultas sob demanda e `src/lib/official-notices/` integra o Diário Oficial do RJ.
-- `src/lib/catalog.ts` concentra a busca, os filtros, a ordenação e as regras de situação.
-- `public/` contém o ícone do site.
+Os testes de integração executam as migrações e consultas em PostgreSQL embarcado com PGlite, sem credenciais ou conexão com o banco de produção.
 
-## Aparência e navegação
+## Ativar o catálogo no PostgreSQL
 
-O botão de sol/lua no cabeçalho alterna entre os temas claro e escuro. No primeiro acesso, o tema acompanha o sistema; a escolha manual fica salva neste navegador. Cores e estados são definidos pelos tokens de `src/app/globals.css`.
+O catálogo usa PostgreSQL. O Redis já configurado continua guardando as leituras do monitoramento de fontes; ele não substitui o banco do catálogo.
 
-O catálogo e os favoritos mostram oito cargos por página. Alterar a busca, os filtros, a ordenação ou a seção retorna à primeira página. Favoritos e seleção para comparação permanecem ao navegar entre as páginas.
+1. Crie um banco PostgreSQL, por exemplo com a integração [Neon na Vercel](https://neon.com/docs/guides/vercel-overview).
+2. Configure `DATABASE_URL` no projeto Vercel, no ambiente **Production**. A conexão com pool é adequada para as funções do site. Use outro banco para Preview e desenvolvimento se quiser testar alterações sem afetar produção.
+3. No seu computador, preencha `DATABASE_URL` em `.env.local` com a conexão do banco que deseja preparar. Se o provedor fornecer uma conexão direta, ela pode ser informada em `DATABASE_URL_UNPOOLED` para o comando de migração. Não deixe essa variável vazia se for usá-la.
+4. Execute, na raiz do projeto:
 
-## Atualizar o catálogo
+   ```sh
+   npm run db:setup
+   ```
 
-O catálogo inicial reúne cargos de Administração, Ciências Agrárias, Ciências e Laboratório, Comunicação, Contabilidade, Direito, Educação, Engenharia, Saúde e Tecnologia da Informação. Há requisitos de nível médio, técnico e superior; não existe filtro obrigatório por ADS. Os números por área no painel são calculados a partir dos cargos cadastrados.
+5. Faça um novo deploy na Vercel após configurar as variáveis de ambiente.
 
-O monitoramento diário coleta publicações, mas não extrai nem cadastra automaticamente os cargos. Seus resultados ficam em **Busca oficial → Monitoramento de fontes** até a conferência dos requisitos e prazos. O catálogo é parcial e pode incluir concursos com inscrições encerradas; use o filtro de situação para selecionar inscrições abertas.
+O comando aplica as migrações de `db/migrations/` e importa os 35 cargos, seus editais, lotações e retificações em uma transação. Preserva os IDs dos favoritos e não sobrescreve registros existentes ao ser executado novamente. O build e as requisições públicas não executam migrações nem importações.
 
-Edite `src/data/opportunities.ts` depois de conferir os documentos oficiais. Mantenha o `id` dos cargos existentes para preservar os favoritos e use datas no formato `AAAA-MM-DD`. Use `professionalArea` para a categoria ampla (como Saúde) e `specialty` para a especialidade (como Fonoaudiologia). Registre formação e habilitação em `requirement`. Atualize `reviewDate` com a data da conferência.
+`.env.local` é ignorado pelo Git. As conexões e tokens pertencem ao servidor; não use prefixo `NEXT_PUBLIC_` nessas variáveis.
 
-Use `locations` para listar as UFs e municípios de lotação. Informe os códigos do [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades) em `municipality.id`. Se o edital definir somente a UF, omita o município. Marque lotações possíveis com `tentative` e localidades que oferecem apenas cadastro de reserva com `reserveOnly`. Registre locais de prova separadamente em `examLocation`.
+### Confirmar o funcionamento
 
-A situação das inscrições usa o horário de São Paulo. A curadoria é manual. Favoritos ficam no navegador. O catálogo e a busca sob demanda dispensam banco de dados, login e variáveis de ambiente.
+Abra `/api/opportunities` no domínio publicado:
 
-## Registrar retificações conferidas
+- `source: "database"`: a API está lendo o PostgreSQL. Após a primeira importação, `total` deve ser 35 e `items` deve trazer oito cargos.
+- `source: "initial"`: `DATABASE_URL` ainda não está disponível nesse deploy.
+- HTTP 503: o banco foi configurado, mas a consulta falhou. Confira a conexão e se `npm run db:setup` foi executado no mesmo banco.
 
-Use `noticeId` para vincular o cargo ao edital em `src/data/notices.ts`. Registre cada publicação oficial uma única vez em `amendments`, com identificador estável dentro do edital, data, link e lista de alterações. Use `before` e `after` para os valores conferidos, e `opportunityIds` quando a mudança só se aplicar a alguns cargos. Atualize os dados vigentes dos cargos afetados na mesma alteração.
+Um banco configurado e vazio retorna zero registros. Falhas de conexão não trocam silenciosamente os dados pelo catálogo inicial.
 
-O histórico público é gerado a partir desse registro revisado. As matérias encontradas na busca oficial só entram no catálogo após conferência manual do documento e vínculo com o edital de origem.
+### Como manter os registros nesta etapa
 
-## Busca sob demanda
+As tabelas `radar_organizations`, `radar_notices`, `radar_opportunities`, `radar_opportunity_locations` e `radar_amendments` guardam os dados. `radar_states` guarda as UFs; `radar_migrations` registra o esquema aplicado.
 
-A aba **Busca oficial** consulta o índice público do Diário Oficial do RJ por palavra-chave e mês e exibe até 25 matérias, com data, link oficial e indicação de revisão pendente. O catálogo revisado continua separado. O Diário Oficial da União tem acesso externo nesta etapa.
+O campo `review_status` aceita `pending`, `approved` e `rejected`; novos editais, cargos e retificações começam pendentes. Um cargo só aparece quando ele e o edital estão aprovados. A aprovação de cargo e edital exige `reviewed_on`. O histórico mostra somente retificações aprovadas de editais com cargos publicados.
 
-A API interna `GET /api/official-notices?q=concurso&month=2026-11` consulta o índice no momento da solicitação. A página principal continua pré-renderizada. A consulta usa uma função Next.js na Vercel e requer o preset Next.js com o diretório de saída no padrão, sem apontar para `out/`.
+Por enquanto, a manutenção acontece pelo editor SQL do banco. Altere os dados vigentes e registre a retificação conferida na mesma transação. Use `changes` como uma lista de objetos com `category` (`Prazo`, `Escolaridade` ou `Remuneração`), `field`, `after` e, quando conhecidos, `before`, `context` e `opportunityIds`.
 
-## Ativar o monitoramento diário
+Preserve os IDs existentes. Valores ausentes, como remuneração e datas ainda não confirmadas, devem continuar nulos. Informe as lotações em `radar_opportunity_locations`, com código de município do [IBGE](https://servicodados.ibge.gov.br/api/docs/localidades); mantenha o local de prova no campo `exam_location` do cargo.
 
-O monitoramento consulta o Diário Oficial do RJ, a UFRRJ e a Prefeitura de Praia Grande. Registra o horário de cada tentativa e guarda a última leitura bem-sucedida, inclusive quando a fonte falha. As publicações continuam pendentes de revisão e o DOU segue com consulta externa.
+Depois da ativação do banco, os arquivos `src/data/opportunities.ts` e `src/data/notices.ts` servem apenas para a importação inicial e para ambientes sem conexão. Alterá-los não modifica registros já existentes no PostgreSQL.
 
-1. Conecte uma instância do **Upstash Redis** ao projeto de produção na Vercel. O código usa `KV_REST_API_URL` e `KV_REST_API_TOKEN`, criadas automaticamente pela integração. Confirme que ambas estão disponíveis em **Production**. Use o token com permissão de escrita; `KV_REST_API_READ_ONLY_TOKEN` não permite registrar as consultas. Não é necessário duplicar as credenciais com outros nomes nem instalar um SDK.
-2. Defina `CRON_SECRET` em produção com um segredo aleatório (por exemplo, gere-o com `openssl rand -hex 32`). Guarde as credenciais apenas no ambiente da Vercel ou no seu `.env.local`.
-3. Faça um novo deploy de produção e confira **Schedules → Cron Jobs**. O `vercel.json` agenda `/api/cron/official-sources` diariamente às 15h UTC, na janela das 12h em Brasília.
-4. Após a primeira execução, abra **Busca oficial → Monitoramento de fontes** para ver a situação. A rota pública `GET /api/official-sources` lê o registro. A atualização exige o cabeçalho `Authorization: Bearer <CRON_SECRET>`.
+O painel de revisão e a extração automática dos editais são as próximas etapas. O monitoramento atual encontra publicações, mas ainda não cria cargos automaticamente.
 
-Sem as variáveis de armazenamento, a busca sob demanda e o catálogo continuam disponíveis e a interface indica que o monitoramento está pendente de configuração.
+## API pública do catálogo
 
-- [Agendamentos da Vercel](https://vercel.com/docs/schedules/cron-jobs)
-- [Upstash Redis na Vercel](https://vercel.com/marketplace/upstash)
+`GET /api/opportunities` aceita:
 
-## Publicar na Vercel
+| Parâmetro                       | Valores                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `search`                        | Busca textual, até 100 caracteres, sem diferenciar acentos                                        |
+| `state`, `municipality`         | Sigla da UF e código IBGE de sete dígitos                                                         |
+| `professionalArea`, `specialty` | Área e especialidade cadastradas                                                                  |
+| `salary`                        | `low` (< R$ 8 mil), `mid` (R$ 8 mil a menos de R$ 10 mil), `high` (≥ R$ 10 mil), `unknown`        |
+| `status`                        | `open`, `upcoming`, `ongoing`, `closed`, `finished`, `unknown`                                    |
+| `sort`                          | `recent` (padrão), `salary`, `org`                                                                |
+| `page`                          | Página, começando em 1; oito cargos por página                                                    |
+| `ids`                           | IDs separados por vírgula, até 200, para consultar favoritos; uma lista vazia retorna zero cargos |
 
-Envie os arquivos desta pasta ao seu repositório GitHub. No painel da Vercel, selecione **Add New → Project**, importe o repositório e escolha o preset **Next.js**. Use Node.js 22, mantenha o comando de build padrão e deixe o diretório de saída no padrão do preset. Em seguida, selecione **Deploy**.
+A resposta contém `items`, `total`, `page`, `totalPages`, `first`, `last`, `facets`, `summary` e `source`. As opções dos filtros e o resumo são calculados a partir de todos os cargos publicados, enquanto `total` considera os filtros da consulta.
 
-[Importação de repositórios Git na Vercel](https://vercel.com/docs/git)
+Exemplo: `/api/opportunities?state=RJ&professionalArea=Saúde&sort=salary&page=1`.
+
+`GET /api/catalog/history` retorna `{ "entries": [...] }` e aceita `category=Prazo`, `Escolaridade` ou `Remuneração`. Parâmetros inválidos retornam HTTP 400. As duas rotas são somente leitura, exibem dados aprovados e usam `Cache-Control: no-store`.
+
+A página consulta o banco a cada acesso. Os filtros e a paginação consultam a API, e o catálogo aberto é atualizado a cada minuto. Isso permite mostrar alterações salvas no banco sem recompilar o site; a coleta e a revisão das fontes continuam tendo sua própria frequência.
+
+## Interface
+
+O botão de sol/lua alterna os temas claro e escuro. No primeiro acesso, o tema acompanha o sistema; a escolha manual fica salva neste navegador. As cores são definidas pelos tokens de `src/app/globals.css`.
+
+Catálogo e favoritos mostram oito cargos por página. Favoritos permanecem no navegador, e a comparação aceita até três cargos de páginas diferentes. A situação das inscrições segue o horário de São Paulo.
+
+## Busca oficial e monitoramento
+
+A aba **Busca oficial** consulta o índice público do Diário Oficial do RJ por palavra-chave e mês, com até 25 matérias. Os resultados mostram links oficiais e revisão pendente. O Diário Oficial da União tem acesso externo nesta etapa.
+
+`GET /api/official-notices?q=concurso&month=2026-11` faz a busca sob demanda. O monitoramento diário consulta IOERJ, UFRRJ e Prefeitura de Praia Grande e conserva a última leitura bem-sucedida quando uma fonte falha.
+
+Para ativar o monitoramento:
+
+1. Conecte o **Upstash Redis** ao projeto Vercel. O código usa `KV_REST_API_URL` e `KV_REST_API_TOKEN`, criadas pela integração. Confirme que estão em **Production**, usando o token com permissão de escrita.
+2. Defina `CRON_SECRET`, gerado por exemplo com `openssl rand -hex 32`.
+3. Faça um deploy de produção e confira **Schedules → Cron Jobs**. O `vercel.json` agenda `/api/cron/official-sources` diariamente às 15h UTC, na janela das 12h em Brasília.
+4. Confira **Busca oficial → Monitoramento de fontes**. A rota pública `/api/official-sources` lê o registro; executar o cron exige `Authorization: Bearer <CRON_SECRET>`.
+
+Sem essas variáveis, a busca sob demanda funciona e o painel informa que o monitoramento está pendente de configuração.
+
+## Organização do código
+
+- `src/app/`: página dinâmica e rotas de API.
+- `src/components/` e `src/hooks/`: interface e carregamento do catálogo.
+- `src/types/catalog.ts`: contrato compartilhado do catálogo.
+- `src/lib/catalog-db/`: conexão, validação, consultas e seleção entre banco e dados iniciais.
+- `src/lib/catalog.ts`: formatação, datas e filtros do catálogo inicial.
+- `src/lib/official-notices/`: integrações com fontes oficiais.
+- `src/data/`: catálogo inicial e localidades.
+- `db/migrations/` e `scripts/`: esquema e importação inicial.
+- `tests/`: testes de integração do catálogo.
+
+## Publicação
+
+Envie os arquivos ao GitHub e importe o repositório na Vercel com o preset **Next.js**, Node.js 22 e build padrão. Mantenha o diretório de saída no padrão do preset: o projeto usa funções de servidor e não exportação estática para `out/`.
+
+- [Importar repositórios na Vercel](https://vercel.com/docs/git)
+- [Cron Jobs da Vercel](https://vercel.com/docs/schedules/cron-jobs)
+- [Upstash na Vercel](https://vercel.com/marketplace/upstash)

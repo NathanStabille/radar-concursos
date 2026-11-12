@@ -1,6 +1,14 @@
 import { RadarDashboard } from "@/components/radar-dashboard";
 import { localDateTime } from "@/lib/catalog";
-
-export default function Home() {
-  return <RadarDashboard initialTime={localDateTime()} />;
+import { initialRequest } from "@/lib/catalog-db/request";
+import { queryCatalog } from "@/lib/catalog-db/service";
+export const dynamic = "force-dynamic";
+export default async function Home() {
+  const initialTime = localDateTime();
+  const initialCatalog = await queryCatalog(initialRequest, initialTime).catch(
+    () => null,
+  );
+  return (
+    <RadarDashboard initialTime={initialTime} initialCatalog={initialCatalog} />
+  );
 }

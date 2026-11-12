@@ -7,8 +7,7 @@ import {
   MapPin,
 } from "lucide-react";
 import type { WorkLocation } from "@/data/locations";
-import type { Opportunity } from "@/data/opportunities";
-import { getNotice } from "@/data/notices";
+import type { Opportunity } from "@/types/catalog";
 import {
   currency,
   locationSummary,
@@ -51,7 +50,7 @@ export function OpportunityCard({
         <div className="org">
           <strong>{item.org}</strong>
           <span>
-            {getNotice(item.noticeId).title} · {item.kind}
+            {item.notice.title} · {item.kind}
           </span>
         </div>
         <button

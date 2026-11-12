@@ -1,35 +1,6 @@
-export const changeCategories = [
-  "Prazo",
-  "Escolaridade",
-  "Remuneração",
-] as const;
-export type ChangeCategory = (typeof changeCategories)[number];
-
-type NoticeSource = { label: string; url: string };
-
-type NoticeChange = {
-  category: ChangeCategory;
-  field: string;
-  before?: string;
-  after: string;
-  context?: string;
-  opportunityIds?: string[];
-};
-
-type Amendment = {
-  date: string;
-  title: string;
-  source: NoticeSource;
-  changes: NoticeChange[];
-};
-
-type Notice = {
-  org: string;
-  title: string;
-  source: NoticeSource;
-  requirementsSource?: NoticeSource;
-  amendments?: Record<string, Amendment>;
-};
+import type { Notice } from "@/types/catalog";
+export { changeCategories } from "@/types/catalog";
+export type { ChangeCategory } from "@/types/catalog";
 
 export const notices = {
   "cremerj-01-2026": {
