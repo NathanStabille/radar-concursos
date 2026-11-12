@@ -23,6 +23,12 @@ Abra [http://localhost:3000](http://localhost:3000). Use `npm run typecheck` par
 - `src/lib/catalog.ts` concentra a busca, os filtros, a ordenação e as regras de situação.
 - `public/` contém o ícone do site.
 
+## Aparência e navegação
+
+O botão de sol/lua no cabeçalho alterna entre os temas claro e escuro. No primeiro acesso, o tema acompanha o sistema; a escolha manual fica salva neste navegador. Cores e estados são definidos pelos tokens de `src/app/globals.css`.
+
+O catálogo e os favoritos mostram oito cargos por página. Alterar a busca, os filtros, a ordenação ou a seção retorna à primeira página. Favoritos e seleção para comparação permanecem ao navegar entre as páginas.
+
 ## Atualizar o catálogo
 
 O catálogo inicial reúne cargos de Administração, Ciências Agrárias, Ciências e Laboratório, Comunicação, Contabilidade, Direito, Educação, Engenharia, Saúde e Tecnologia da Informação. Há requisitos de nível médio, técnico e superior; não existe filtro obrigatório por ADS. Os números por área no painel são calculados a partir dos cargos cadastrados.

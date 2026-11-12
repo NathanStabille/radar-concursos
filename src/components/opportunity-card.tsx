@@ -1,15 +1,14 @@
 import {
-  ArrowRight,
+  ArrowUpRight,
   Bookmark,
   Building2,
   CalendarDays,
-  GitCompareArrows,
   Info,
   MapPin,
-  ShieldCheck,
 } from "lucide-react";
 import type { WorkLocation } from "@/data/locations";
 import type { Opportunity } from "@/data/opportunities";
+import { getNotice } from "@/data/notices";
 import {
   currency,
   locationSummary,
@@ -41,25 +40,45 @@ export function OpportunityCard({
 }: OpportunityCardProps) {
   const currentStatus = status(item, today);
   return (
-    <article className="record">
-      <div className="record-main">
+    <article
+      className={`record${isSelected ? " is-selected" : ""}`}
+      aria-labelledby={`role-${item.id}`}
+    >
+      <div className="record-heading">
+        <span className="org-icon">
+          <Building2 size={18} />
+        </span>
         <div className="org">
-          <Building2 size={14} /> {item.org} <span>· {item.kind}</span>
+          <strong>{item.org}</strong>
+          <span>
+            {getNotice(item.noticeId).title} · {item.kind}
+          </span>
         </div>
-        <h3>
+        <button
+          type="button"
+          className={`icon-button favorite-button${isSaved ? " marked" : ""}`}
+          aria-label={`${isSaved ? "Remover dos favoritos" : "Favoritar"}: ${item.role}`}
+          aria-pressed={isSaved}
+          title={isSaved ? "Remover dos favoritos" : "Favoritar"}
+          onClick={onFavorite}
+        >
+          <Bookmark size={18} fill={isSaved ? "currentColor" : "none"} />
+        </button>
+      </div>
+      <div className="record-main">
+        <span className="area">
+          {item.professionalArea} · {item.specialty}
+        </span>
+        <h3 id={`role-${item.id}`}>
           <button onClick={onDetails}>{item.role}</button>
         </h3>
-        <div className="record-meta">
-          <span>
-            <MapPin size={14} /> {locationSummary(locations)}
-          </span>
-          <span className="area">
-            {item.professionalArea} · {item.specialty}
-          </span>
-        </div>
+        <p className="record-location">
+          <MapPin size={14} />
+          {locationSummary(locations)}
+        </p>
       </div>
       <div className="record-pay">
-        <span className="field-label">REMUNERAÇÃO</span>
+        <span className="field-label">Remuneração</span>
         <strong>
           {item.salary === null
             ? "Não confirmada"
@@ -67,55 +86,44 @@ export function OpportunityCard({
         </strong>
         <span className="muted">{item.salaryLabel}</span>
       </div>
+      <dl className="record-fields">
+        <div>
+          <dt>Formação e requisitos</dt>
+          <dd>{item.eligibility}</dd>
+        </div>
+        <div>
+          <dt>Banca / organização</dt>
+          <dd>{item.board || "Não confirmada"}</dd>
+        </div>
+      </dl>
       <div className="record-period">
-        <span className={"status " + currentStatus}>
+        <span className={`status ${currentStatus}`}>
           {statusNames[currentStatus]}
         </span>
         <span className="record-dates">
-          <CalendarDays size={14} /> {period(item)}
+          <CalendarDays size={14} />
+          {period(item)}
         </span>
       </div>
+      {item.note && (
+        <button className="uncertain" type="button" onClick={onDetails}>
+          <Info size={14} />
+          Há informação a confirmar. Ver detalhes.
+        </button>
+      )}
       <div className="record-bottom">
-        <div className="eligibility">
-          <ShieldCheck size={16} /> {item.eligibility}
-          <span className="board">· {item.board}</span>
-          {item.note && (
-            <span className="uncertain" title={item.note}>
-              <Info size={14} /> Dado a confirmar
-            </span>
-          )}
-        </div>
-        <div className="actions">
-          <button
-            className={"icon-button " + (isSaved ? "marked" : "")}
-            aria-label={
-              (isSaved ? "Remover dos favoritos: " : "Favoritar: ") + item.role
-            }
-            aria-pressed={isSaved}
-            title={isSaved ? "Remover dos favoritos" : "Favoritar"}
-            onClick={onFavorite}
-          >
-            <Bookmark size={17} fill={isSaved ? "currentColor" : "none"} />
-          </button>
-          <button
-            className={"icon-button " + (isSelected ? "marked" : "")}
-            aria-label={
-              (isSelected
-                ? "Remover da comparação: "
-                : "Selecionar para comparar: ") + item.role
-            }
-            aria-pressed={isSelected}
-            title={
-              isSelected ? "Remover da comparação" : "Selecionar para comparar"
-            }
-            onClick={onCompare}
-          >
-            <GitCompareArrows size={17} />
-          </button>
-          <button className="details-button" onClick={onDetails}>
-            Ver detalhes <ArrowRight size={16} />
-          </button>
-        </div>
+        <button className="details-button" onClick={onDetails}>
+          Ver detalhes <ArrowUpRight size={16} />
+        </button>
+        <label className="compare-check">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onCompare}
+            aria-label={`Comparar: ${item.role}`}
+          />
+          Comparar
+        </label>
       </div>
     </article>
   );

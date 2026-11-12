@@ -8,20 +8,20 @@ function RadarArt() {
           <path
             d="M 20 0 L 0 0 0 20"
             fill="none"
-            stroke="#436623"
+            stroke="currentColor"
             strokeOpacity=".12"
           />
         </pattern>
         <linearGradient id="sweep">
-          <stop stopColor="#739b2d" stopOpacity=".03" />
-          <stop offset="1" stopColor="#6b932b" stopOpacity=".38" />
+          <stop stopColor="currentColor" stopOpacity=".03" />
+          <stop offset="1" stopColor="currentColor" stopOpacity=".38" />
         </linearGradient>
       </defs>
       <rect width="430" height="250" fill="url(#grid)" />
       <g
         transform="translate(279 124)"
         fill="none"
-        stroke="#4a6e24"
+        stroke="currentColor"
         strokeOpacity=".44"
       >
         <circle r="33" />
@@ -36,14 +36,19 @@ function RadarArt() {
           stroke="none"
         />
         <path d="M0 0 103-64" strokeOpacity=".85" />
-        <circle r="4" fill="#355320" />
-        <circle cx="77" cy="-48" r="4.5" fill="#355320" />
-        <circle cx="-53" cy="31" r="4" fill="#355320" />
-        <circle cx="66" cy="63" r="3.5" fill="#355320" />
+        <circle r="4" fill="currentColor" />
+        <circle cx="77" cy="-48" r="4.5" fill="currentColor" />
+        <circle cx="-53" cy="31" r="4" fill="currentColor" />
+        <circle cx="66" cy="63" r="3.5" fill="currentColor" />
         <circle cx="-53" cy="31" r="10" />
         <circle cx="77" cy="-48" r="10" />
       </g>
-      <g fill="#3a5727" fontFamily="monospace" fontSize="9" letterSpacing="2">
+      <g
+        fill="currentColor"
+        fontFamily="monospace"
+        fontSize="9"
+        letterSpacing="2"
+      >
         <text x="26" y="39">
           RADAR / BR
         </text>
@@ -66,8 +71,8 @@ export function RadarHero() {
           para várias profissões<span>.</span>
         </h1>
         <p>
-          Explore concursos e seleções por estado, município de lotação e área
-          profissional. Confira a formação exigida em cada edital.
+          Encontre oportunidades por estado, área e formação. Compare os
+          requisitos e acompanhe os prazos.
         </p>
       </div>
       <div className="hero-note">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowDownUp,
   ArrowRight,
@@ -28,10 +28,13 @@ import {
   localDateTime,
   status,
 } from "@/lib/catalog";
+import { paginate } from "@/lib/pagination";
 import { amendmentCount, getAmendmentHistory } from "@/lib/amendments";
 import { CatalogFilters } from "./catalog-filters";
 import { OfficialSearch } from "./official-search";
 import { OpportunityCard } from "./opportunity-card";
+import { Pagination } from "./pagination";
+import { ThemeToggle } from "./theme-toggle";
 import { RadarDialog, type Modal } from "./radar-dialog";
 import { RadarHero } from "./radar-hero";
 import { SourceMonitor } from "./source-monitor";
@@ -51,6 +54,8 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   const [tab, setTab] = useState<Tab>("opportunities");
   const [filters, setFilters] = useState(initialFilters);
   const [sort, setSort] = useState("recent");
+  const [page, setPage] = useState(1);
+  const catalogSection = useRef<HTMLElement>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [modal, setModal] = useState<Modal | null>(null);
@@ -83,6 +88,10 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
       ? favorites.filter((value) => value !== id)
       : [...favorites, id];
     setFavorites(next);
+    if (tab === "favorites") {
+      const remaining = filterOpportunities(filters, sort, today, next);
+      setPage((current) => paginate(remaining, current).page);
+    }
     try {
       localStorage.setItem(favoritesKey, JSON.stringify(next));
     } catch {
@@ -106,6 +115,8 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
     tab === "favorites" ? favorites : undefined,
   );
 
+  const paginated = paginate(filtered, page);
+
   const openCount = opportunities.filter(
     (item) => status(item, today) === "open",
   ).length;
@@ -114,6 +125,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   );
 
   function setFilter(key: keyof typeof initialFilters, value: string) {
+    setPage(1);
     setFilters((current) => ({
       ...current,
       [key]: value,
@@ -125,6 +137,17 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
   function navigate(next: Tab) {
     setTab(next);
     setFilters(initialFilters);
+    setPage(1);
+  }
+
+  function clearFilters() {
+    setFilters(initialFilters);
+    setPage(1);
+  }
+
+  function changePage(next: number) {
+    setPage(paginate(filtered, next).page);
+    catalogSection.current?.scrollIntoView({ block: "start" });
   }
 
   return (
@@ -148,12 +171,16 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             <MapPin size={15} /> Catálogo inicial · {coveredStateCount} UFs com
             registros
           </div>
-          <button
-            className="top-button"
-            onClick={() => setModal({ type: "criteria" })}
-          >
-            <ShieldCheck size={17} /> <span>Critérios do radar</span>
-          </button>
+          <div className="top-actions">
+            <ThemeToggle />
+            <button
+              className="top-button"
+              onClick={() => setModal({ type: "criteria" })}
+              aria-label="Critérios do radar"
+            >
+              <ShieldCheck size={17} /> <span>Critérios do radar</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -257,10 +284,14 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             </div>
           </section>
         ) : (
-          <section className="main-section">
+          <section
+            className="main-section"
+            ref={catalogSection}
+            aria-labelledby="catalog-title"
+          >
             <div className="section-heading">
               <div>
-                <h2>
+                <h2 id="catalog-title">
                   {tab === "favorites" ? "Meus favoritos" : "Oportunidades"}
                 </h2>
                 <p>
@@ -301,16 +332,18 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
             )}
             <CatalogFilters filters={filters} onChange={setFilter} />
             <div className="result-bar">
-              <div aria-live="polite">
+              <div className="result-count" aria-live="polite">
                 <strong>{filtered.length}</strong>{" "}
                 {filtered.length === 1
                   ? "oportunidade encontrada"
                   : "oportunidades encontradas"}
+                {filtered.length > 0 && (
+                  <span className="result-range">
+                    Mostrando {paginated.first} a {paginated.last}
+                  </span>
+                )}
                 {activeFilters > 0 && (
-                  <button
-                    className="text-button"
-                    onClick={() => setFilters(initialFilters)}
-                  >
+                  <button className="text-button" onClick={clearFilters}>
                     Limpar filtros
                   </button>
                 )}
@@ -320,7 +353,10 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 <span className="sr-only">Ordenar oportunidades</span>
                 <select
                   value={sort}
-                  onChange={(event) => setSort(event.target.value)}
+                  onChange={(event) => {
+                    setSort(event.target.value);
+                    setPage(1);
+                  }}
                 >
                   <option value="recent">Prazo mais recente</option>
                   <option value="salary">Maior remuneração</option>
@@ -329,21 +365,28 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
               </label>
             </div>
             {filtered.length ? (
-              <div className="results">
-                {filtered.map((item) => (
-                  <OpportunityCard
-                    key={item.id}
-                    item={item}
-                    locations={matchingLocations(item.locations, filters)}
-                    today={today}
-                    isSaved={favorites.includes(item.id)}
-                    isSelected={selected.includes(item.id)}
-                    onDetails={() => setModal({ type: "details", item })}
-                    onFavorite={() => toggleFavorite(item.id)}
-                    onCompare={() => toggleCompare(item.id)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="results">
+                  {paginated.items.map((item) => (
+                    <OpportunityCard
+                      key={item.id}
+                      item={item}
+                      locations={matchingLocations(item.locations, filters)}
+                      today={today}
+                      isSaved={favorites.includes(item.id)}
+                      isSelected={selected.includes(item.id)}
+                      onDetails={() => setModal({ type: "details", item })}
+                      onFavorite={() => toggleFavorite(item.id)}
+                      onCompare={() => toggleCompare(item.id)}
+                    />
+                  ))}
+                </div>
+                <Pagination
+                  page={paginated.page}
+                  totalPages={paginated.totalPages}
+                  onChange={changePage}
+                />
+              </>
             ) : (
               <div className="empty">
                 <span className="summary-icon">
@@ -368,9 +411,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
                 <button
                   className="outline"
                   onClick={() =>
-                    activeFilters
-                      ? setFilters(initialFilters)
-                      : navigate("opportunities")
+                    activeFilters ? clearFilters() : navigate("opportunities")
                   }
                 >
                   {activeFilters ? "Limpar filtros" : "Explorar oportunidades"}{" "}
@@ -394,7 +435,7 @@ export function RadarDashboard({ initialTime }: { initialTime: string }) {
 
       {(selected.length > 0 || notice) && (
         <aside className="tray" aria-label="Seleção para comparação">
-          <div aria-live="polite">
+          <div className="result-count" aria-live="polite">
             <strong>{selected.length} de 3 selecionadas</strong>
             <span>
               {notice ||
